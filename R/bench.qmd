@@ -132,6 +132,33 @@ bench::mark(
 
 ---
 
+## Benchmark vers `future_lapply` and `future_map`
+
+```{r}
+library(future.apply)
+library(furrr)
+library(bench)
+
+x <- as.list(1:100)
+slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
+
+# set fixed number of workers (4 cores)
+workers <- 4
+future::plan(multisession, workers = workers)
+
+# Run benchmark
+bench::mark(
+  funr_fmap     = fmap(x, slow_fn, ncores = workers, pb = FALSE),
+  future_lapply = future.apply::future_lapply(x, slow_fn),
+  future_map    = furrr::future_map(x, slow_fn),
+  check = FALSE,
+  memory = FALSE
+)
+```
+
+
+---
+
 ##Summary
 
 `funr` combines the simplicity of base R with the expressive design of purrr, optimized for parallel execution and progress tracking.
