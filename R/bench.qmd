@@ -1,0 +1,137 @@
+
+## Benchmarking `funr` vs Base R and `purrr`
+
+### Setup
+
+```{r}
+#library(funr)     
+library(bench)
+library(rsample)
+```
+
+### Inputs
+
+```{r}
+# Vector + function
+x <- as.list(1:5000)
+df <- iris
+df_grp <- iris
+args <- list(a = 1:5000, b = 1:5000)
+
+slow_fn <- function(x) sum(rnorm(1000)) + x
+```
+
+---
+
+## Benchmarks
+
+### 1. Element-wise Mapping
+
+```{r}
+bench::mark(
+  fmap      = fmap(x, slow_fn),
+  fapply    = fapply(x, slow_fn),
+  lapply    = lapply(x, slow_fn),
+  purrr_map = purrr::map(x, slow_fn),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 2. Multi-argument mapping (pmap)
+
+```{r}
+bench::mark(
+  fmapn      = fmapn(args, function(a, b) a + b),
+  base_Map   = Map(function(a, b) a + b, args$a, args$b),
+  purrr_pmap = purrr::pmap(args, function(a, b) a + b),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 3. Row-wise mapping
+
+```{r}
+bench::mark(
+  fmapr = fmapr(df, function(row) row$Sepal.Length + row$Petal.Length),
+  purrr_map_rows = purrr::map(1:nrow(df), function(i) {
+    row <- df[i, ]; row$Sepal.Length + row$Petal.Length
+  }),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 4. Column-wise mapping
+
+```{r}
+bench::mark(
+  fmapc = fmapc(df, function(col, name) if (is.numeric(col)) mean(col)),
+  base_sapply = sapply(df, function(col) if (is.numeric(col)) mean(col)),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 5. Side-effect walk
+
+```{r}
+invisible(
+  bench::mark(
+    fwalk = fwalk(1:100, function(x) invisible(x^2)),
+    purrr_walk = purrr::walk(1:100, function(x) invisible(x^2)),
+    check = FALSE, memory = FALSE
+  )
+)
+```
+
+---
+
+### 6. Repeat with parallelism
+
+```{r}
+bench::mark(
+  frepeat = frepeat(50, function() sum(rnorm(1e5)), ncores = 4),
+  replicate = replicate(50, sum(rnorm(1e5)), simplify = FALSE),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 7. Cross-Validation (rsample)
+
+```{r}
+cv <- vfold_cv(df, v = 5)
+
+bench::mark(
+  fcv = fcv(cv$splits, function(split) mean(analysis(split)$Sepal.Length)),
+  purrr_map_cv = purrr::map(cv$splits, function(split) mean(analysis(split)$Sepal.Length)),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+### 8. Group-wise Mapping
+
+```{r}
+bench::mark(
+  fmapg = fmapg(df_grp, function(group) mean(group$Sepal.Length), by = "Species"),
+  purrr_grouped = df_grp |>
+    split(df_grp$Species) |>
+    purrr::map(~ mean(.x$Sepal.Length)),
+  check = FALSE, memory = FALSE
+)
+```
+
+---
+
+##Summary
+
+`funr` combines the simplicity of base R with the expressive design of purrr, optimized for parallel execution and progress tracking.
