@@ -7,9 +7,10 @@ fcv <- function(.splits, .f, ncores = NULL, pb = FALSE, ...) {
 
 
 library(rsample)
-data_split <- vfold_cv(mtcars, v = 5)
+data_split <- vfold_cv(mtcars, v = 10)
 
 fcv(data_split$splits, function(split) {
   analysis(split) |> summary()
 }, ncores = 2, pb = TRUE)
+
 
