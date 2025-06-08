@@ -24,8 +24,8 @@ plan(multisession, workers = ncores)
 results <- bench::mark(
   funr_fmap      = fmap(x, slow_fn, ncores = ncores, pb = TRUE),
   furrr_future   = furrr::future_map(x, slow_fn, .options = furrr::furrr_options(seed = NULL)),
-  iterations = 3,
-  check = FALSE,
+  iterations = 10,
+  check = TRUE,
   memory = FALSE
 )
 
