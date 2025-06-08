@@ -159,6 +159,6 @@ bench::mark(
 
 ---
 
-##Summary
+## Summary
 
 `funr` combines the simplicity of base R with the expressive design of purrr, optimized for parallel execution and progress tracking.
