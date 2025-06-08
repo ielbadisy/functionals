@@ -1,3 +1,5 @@
+
+#-------------------- arguments check
 .check_fapply_args <- function(X, FUN, ncores, pb) {
   # check X is atomic or list-like
   if (!is.vector(X) || is.object(X)) X <- as.list(X)
@@ -37,3 +39,4 @@
 }
 
 
+#-------------------- internal progression bars
