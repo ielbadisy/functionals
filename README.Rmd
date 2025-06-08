@@ -1,0 +1,161 @@
+---
+output: github_document
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>",
+  fig.path = "man/figures/README-",
+  out.width = "100%"
+)
+```
+
+
+
+# funr: Functional mapping with parallelism and progress bars
+
+## Overview
+
+`funr` is a lightweight, dependency-free toolkit designed to extend and modernize R's functional programming capabilities. It provides simple yet powerful tools to map, walk, reduce, compose, cross-validate, and parallelize computations, with native support for progress bars and works naturally with base R data structures without requiring conversion to special classes or tibble formats. It uses only base R with `parallel`, making it easy to integrate into R scripts, pipelines, or legacy codebases. 
+
+## Why funr?
+
+Built on base R with no heavy dependencies, `funr` streamlines functional worflows with intuitive syntax and built-in support for parallelism and progress bars. it design keep things simple and readable. 
+
+## Key features
+
+- `fmap()`: element-wise mapping
+- `fmapn()`: **n**-ary zipped mapping
+- `fmapr()`: **r**ow-wise data frame mapping
+- `fmapc()`: **c**olumn-wise mapping
+- `fmapg()`: **g**roup-wise processing
+- `fwalk()`: for side-effect actions
+- `fcv()`: **c**ross-**v**alidation engine
+- `fapply()`: parallel + progress-enabled apply
+- `frepeat()`, `fcompose()`, `freduce()`: functional composition and iteration
+
+## Comparison with similar packages
+
+### Feature Coverage
+
+| Feature                | `funr`                    | `pbapply`              | `purrr`                  | Base R             |
+|------------------------|---------------------------|-------------------------|---------------------------|--------------------|
+| Element-wise map       | `fmap()`                  | `pblapply()`            | `map()`                   | `lapply()`         |
+| Multi-arg mapping      | `fmapn()`                 | —                       | `pmap()`                  | `Map()`            |
+| Row-wise mapping       | `fmapr()`                 | —                       | `pmap(df, ...)`           | `apply(df, 1, ...)`|
+| Column-wise mapping    | `fmapc()`                 | —                       | `map_df()` (manual)       | `apply(df, 2, ...)`|
+| Grouped operations     | `fmapg()`                 | —                       | `map(split(...))`         | `split()` + `lapply()` |
+| Parallelism            | `ncores` (built-in)       | `cl` or `future`        | via `furrr`               | manual             |
+| Progress bars          | Built-in native bar       | Built-in                | Not available             | None               |
+| Cross-validation       | `fcv()`                   | —                       | —                         | —                  |
+| Side-effect mapping    | `fwalk()`                 | —                       | `walk()`                  | `lapply()`         |
+| Functional utilities   | `freduce()`, `fcompose()`| —                       | `reduce()`, `compose()`   | `Reduce()`         |
+
+### Syntax equivalence
+
+| Task                           | `funr` Example                       | `pbapply`             | `purrr`                        | Base R                 |
+|--------------------------------|--------------------------------------|------------------------|-------------------------------|------------------------|
+| Map square                     | `fmap(1:5, \(x) x^2)`                | `pblapply(1:5, ...)`   | `map(1:5, ~ .x^2)`            | `lapply(1:5, ...)`     |
+| Map with 2 args                | `fmapn(list(1:3, 4:6), \(x,y) x+y)`  | —                      | `pmap(list(a,b), ~ x+y)`      | `Map(\(x,y) x+y, a,b)` |
+| Map over df rows              | `fmapr(df, \(row) row$a + row$b)`    | —                      | `pmap(df, ...)`               | `apply(df, 1, ...)`    |
+| Parallel + progress           | `fapply(1:100, slow_fn, 4, pb=TRUE)` | `pblapply(..., cl=4)`  | `future_map(..., .progress)`* | `mclapply(...)`        |
+| Reduce                        | `freduce(1:5, `+`)`                  | —                      | `reduce(1:5, `+`)`            | `Reduce(`+`, 1:5)`     |
+
+> \* `purrr` alone doesn’t support progress or parallel — you must combine `furrr` + `progressr`.
+
+## Function reference table
+
+| Function     | Main Arguments                            | Output Type      | Description                                               |
+|--------------|--------------------------------------------|------------------|-----------------------------------------------------------|
+| `fmap()`     | `X`, `.f`, `ncores`, `pb`                  | `list`           | Map a function over a list/vector                         |
+| `fmapn()`    | `X_list`, `.f`, `ncores`, `pb`             | `list`           | Multi-input zipped map over lists                         |
+| `fmapr()`    | `data.frame`, `.f`, `ncores`, `pb`         | `list`           | Row-wise map over data.frame, each row as a list          |
+| `fmapc()`    | `data.frame`, `.f`, `ncores`, `pb`         | `list`           | Column-wise map over data.frame, with column name         |
+| `fmapg()`    | `data.frame`, `.f`, `by`, `ncores`, `pb`   | `list`           | Grouped map over `data.frame` by grouping column(s)       |
+| `fwalk()`    | `X`, `.f`, `ncores`, `pb`                  | `NULL`           | Walk over elements with `.f()` for side-effects           |
+| `fcv()`      | `splits`, `.f`, `ncores`, `pb`             | `list`           | Functional CV map over `rsample`-style splits             |
+| `frepeat()`  | `n`, `.f`, `ncores`, `pb`                  | `list`           | Repeat a function or expression `n` times                 |
+| `fapply()`   | `X`, `FUN`, `ncores`, `pb`, `...`          | `list`           | General-purpose parallel apply with progress support      |
+
+## Philosophy
+
+`funr` promotes a minimalist but powerful approach to data transformation:
+
+- **Functional**: All tools are pure functions.
+- **Composable**: Can be easily combined into pipelines.
+- **Transparent**: No magic, only base R principles.
+- **Reproducible**: Built for batch workflows, simulations, CV.
+
+## Installation
+
+```{r}
+# install.packages("funr") # when available
+#remotes::install_github("yourusername/funr")
+```
+
+## Example
+
+```{r}
+#library(funr)
+#slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
+
+# Parallel with progress
+#res <- fapply(1:100, slow_fn, ncores = 4, pb = TRUE)
+```
+
+
+## funr` Development TODO
+
+### Design and API consistency
+
+* [ ] Unify function argument naming conventions (e.g., use `.f` or `fun`, `x` instead of `X`) > prefer lowercase and functional style
+* [ ] Consolidate and centralize helper functions (`.check_fapply_args`, `splitpb`)
+* [ ] Move progress bar helpers (`funr_progress_bar` and others) to `R/utils.R`
+
+### Package structure and documentation
+
+* [ ] Add `@docType package` and `@keywords internal` where relevant
+* [ ] Add `.onLoad()` to initialize options (`pboptions`)
+* [ ] Document all functions using **Roxygen2** (`@param`, `@return`, `@examples`, `@export`)
+* [ ] Ensure all exported functions have complete `@examples` and `@return` tags
+* [ ] Proofread and polish `DESCRIPTION` Title and Description
+* [ ] Add `Authors@R` field with full name, role, and email
+* [ ] Add License declaration and check license of any reused code
+
+### Testing and validation
+
+* [ ] Write unit tests for all core functions (`fmap*`, `fapply`, `frepeat`, `fcv`, ...)
+* [ ] Ensure acceptable test coverage with `testthat`
+* [ ] Run `devtools::check()` and fix all NOTES, WARNINGS, ERRORS
+* [ ] Run remote checks via `rhub::check_for_cran()`
+
+
+
+### Documentation and usability
+
+* [ ] Update `README.md` with consistent examples and clear installation instructions
+* [ ] Add comparison tables to README (vs `purrr`, `pbapply`, base R)
+* [ ] Create minimal reproducible example for each exported function
+* [ ] Add CONTRIBUTING.md or contribution section in README
+* [ ] Create vignettes:
+
+  * [ ] `benchmarking.Rmd` – benchmark vs `furrr`, `pbapply`
+  * [ ] `funr-vs-purrr.Rmd` – comparison and philosophy
+  * [ ] `funr-overview.Rmd` – design goals and examples
+
+
+* [ ] Review syntax equivalence table in the README to ensure accuracy and consistency
+* [ ] Add illustrative examples for each mapping function to clarify usage and behavior
+
+Let me know if you'd like to combine them into a single checklist item.
+
+
+
+### GitHub integration
+
+* [ ] Add GitHub URL with `usethis::use_github_links()`
+* [ ] Add badges: build status, coverage, license, CRAN version
+* [ ] Add `LICENSE.md`, `CODE_OF_CONDUCT.md`, and optionally `NEWS.md`
+
+
