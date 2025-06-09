@@ -86,6 +86,22 @@ transformation:
 - **Transparent**: No magic, only base R principles.
 - **Reproducible**: Built for batch workflows, simulations, CV.
 
+## Why no formula interface like `~ .x + .y`?
+
+While `funr` draws inspiration from `purrr`, it intentionally avoids
+supporting the formula-based anonymous function syntax (e.g.,
+`~ .x + 1`) for now.
+
+This decision is based on:
+
+- Keeping dependencies minimal (no reliance on `rlang`)
+- Avoiding non-standard evaluation that can confuse new users
+- Encouraging explicit, readable code using `function(x) { ... }` style
+
+We may consider adding tidy evaluation support (e.g., with quosures or
+`rlang::as_function`) in a future release. However, the current
+philosophy favors clarity, portability, and simplicity.
+
 ## Installation
 
 ``` r
