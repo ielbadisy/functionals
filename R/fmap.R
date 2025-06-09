@@ -17,7 +17,7 @@ slow_fn <- function(x) {
 
 x <- 1:100
 
-ncores <- 12
+ncores <- 8
 
 plan(multisession, workers = ncores)
 
