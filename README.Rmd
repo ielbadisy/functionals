@@ -94,7 +94,7 @@ Built on base R with no heavy dependencies, `funr` streamlines functional worflo
 #remotes::install_github("yourusername/funr")
 ```
 
-## Example
+## Example 1 
 
 ```{r}
 #library(funr)
@@ -104,6 +104,60 @@ Built on base R with no heavy dependencies, `funr` streamlines functional worflo
 #res <- fapply(1:100, slow_fn, ncores = 4, pb = TRUE)
 ```
 
+
+## Example 2 
+
+```{r, eval=FALSE}
+library(tidymodels)
+library(dplyr)
+#library(funr)  
+
+set.seed(123)
+
+# -------------------------------
+# Step 1: Define model + workflow
+# -------------------------------
+# This sets up a decision tree classification model using tidymodels
+workflow <- workflows::workflow() |>
+  add_model(
+    decision_tree() |>
+      set_engine("rpart") |>
+      set_mode("classification")
+  ) |>
+  add_formula(Species ~ .)
+
+# ------------------------------------
+# Step 2: Define evaluation for 1 fold
+# ------------------------------------
+# Takes a split object and returns metrics for the fitted model
+evaluate_split <- function(split) {
+  fit <- fit(workflow, analysis(split))
+  preds <- predict(fit, assessment(split)) |>
+    bind_cols(assessment(split) |> select(Species))
+  metrics(preds, truth = Species, estimate = .pred_class)
+}
+
+# ----------------------------------------------------
+# Step 3: Full CV pipeline using `funr` piping tools
+# ----------------------------------------------------
+# Explanation:
+# - `frepeat()` repeats cross-validation 10 times
+# - `fcv()` applies `evaluate_split()` to each fold in parallel
+# - `fmap()` filters results to keep only "accuracy" rows
+# - `bind_rows()` and `summarize()` compute mean and SD
+mean_accuracy <- iris |>
+  vfold_cv(v = 10) |> #funr
+  pull(splits) |>
+  frepeat(expr = function(x) fcv(x, evaluate_split, ncores = 4), times = 10) |> #funr
+  unlist(recursive = FALSE) |>
+  fmap(function(x) dplyr::filter(x, .metric == "accuracy")) |> #funr
+  bind_rows() |>
+  summarize(mean = mean(.estimate), sd = sd(.estimate))
+
+# Print result
+print(mean_accuracy)
+
+```
 
 ## funr` Development TODO
 
