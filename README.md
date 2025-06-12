@@ -178,7 +178,7 @@ print(mean_accuracy)
 
 - [x] Unify function argument naming conventions (e.g., use `.f` or
   `fun`, `x` instead of `X`) \> prefer lowercase and functional style
-- [ ] Consolidate and centralize helper functions (`.check_fapply_args`,
+- [x] Consolidate and centralize helper functions (`.check_fapply_args`,
   `splitpb`)
 - [ ] Move progress bar helpers (`funr_progress_bar` and others) to
   `R/utils.R`
