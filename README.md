@@ -180,7 +180,7 @@ print(mean_accuracy)
   `fun`, `x` instead of `X`) \> prefer lowercase and functional style
 - [x] Consolidate and centralize helper functions (`.check_fapply_args`,
   `splitpb`)
-- [ ] Move progress bar helpers (`funr_progress_bar` and others) to
+- [x] Move progress bar helpers (`funr_progress_bar` and others) to
   `R/utils.R`
 
 ### Package structure and documentation
