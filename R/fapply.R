@@ -1,15 +1,15 @@
 # core functional mapping tools in funr
-fapply <- function(X, FUN, ncores = 1, pb = FALSE, ...) {
+fapply <- function(.x, .f, ncores = 1, pb = FALSE, ...) {
 
   ## check and normalize arguments
-  args <- .check_fapply_args(X, FUN, ncores, pb)
+  args <- .check_fapply_args(.x, .f, ncores, pb)
   if (!is.null(args$result)) return(args$result)
-  X <- args$X; FUN <- args$FUN; ncores <- args$ncores; pb <- args$pb
+  .x <- args$.x; .f <- args$.f; ncores <- args$ncores; pb <- args$pb
 
 
-  FUN <- match.fun(FUN)
-  if (!is.vector(X) || is.object(X)) X <- as.list(X)
-  if (!length(X)) return(list())
+  .f <- match.fun(.f)
+  if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
+  if (!length(.x)) return(list())
 
   # custom progress bar function
   funr_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
@@ -52,7 +52,7 @@ fapply <- function(X, FUN, ncores = 1, pb = FALSE, ...) {
       g <- 1L + (i - 1L) %/% as.integer(ncl * k)
       structure(split(i, g), names = NULL)
     }
-    Split <- splitpb(length(X), ncores, nout = 100)
+    Split <- splitpb(length(.x), ncores, nout = 100)
     B <- length(Split)
     pb_bar <- funr_progress_bar(min = 0, max = B)
     on.exit(pb_bar$kill(), add = TRUE)
@@ -61,10 +61,10 @@ fapply <- function(X, FUN, ncores = 1, pb = FALSE, ...) {
       if (.Platform$OS.type == "windows") {
         cl <- parallel::makeCluster(ncores)
         on.exit(parallel::stopCluster(cl), add = TRUE, after = FALSE)
-        rval[[i]] <- parallel::parLapply(cl, X[Split[[i]]], FUN, ...)
+        rval[[i]] <- parallel::parLapply(cl, .x[Split[[i]]], .f, ...)
         parallel::stopCluster(cl)
       } else {
-        rval[[i]] <- parallel::mclapply(X[Split[[i]]], FUN, ..., mc.cores = ncores)
+        rval[[i]] <- parallel::mclapply(.x[Split[[i]]], .f, ..., mc.cores = ncores)
       }
       pb_bar$up(i)
     }
@@ -74,12 +74,12 @@ fapply <- function(X, FUN, ncores = 1, pb = FALSE, ...) {
       if (.Platform$OS.type == "windows") {
         cl <- parallel::makeCluster(ncores)
         on.exit(parallel::stopCluster(cl), add = TRUE)
-        parallel::parLapply(cl, X, FUN, ...)
+        parallel::parLapply(cl, .x, .f, ...)
       } else {
-        parallel::mclapply(X, FUN, ..., mc.cores = ncores)
+        parallel::mclapply(.x, .f, ..., mc.cores = ncores)
       }
     } else {
-      lapply(X, FUN, ...)
+      lapply(.x, .f, ...)
     }
   }
 }
