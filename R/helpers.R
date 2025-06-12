@@ -1,17 +1,17 @@
 
 #-------------------- arguments check
-.check_fapply_args <- function(X, FUN, ncores, pb) {
-  # check X is atomic or list-like
-  if (!is.vector(X) || is.object(X)) X <- as.list(X)
+.check_fapply_args <- function(.x, .f, ncores, pb) {
+  # check .x is atomic or list-like
+  if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
 
   # empty input warning
-  if (length(X) == 0L) {
-    warning("Input `X` is empty. Returning empty list.")
-    return(list(result = list(), X = X))
+  if (length(.x) == 0L) {
+    warning("Input `.x` is empty. Returning empty list.")
+    return(list(result = list(), .x = .x))
   }
 
-  # check FUN
-  FUN <- match.fun(FUN)
+  # check .f
+  .f <- match.fun(.f)
 
   # check ncores
   if (!is.null(ncores)) {
@@ -35,7 +35,7 @@
     pb <- FALSE
   }
 
-  list(result = NULL, X = X, FUN = FUN, ncores = ncores, pb = pb)
+  list(result = NULL, .x = .x, .f = .f, ncores = ncores, pb = pb)
 }
 
 
