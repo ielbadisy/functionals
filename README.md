@@ -176,7 +176,7 @@ print(mean_accuracy)
 
 ### Design and API consistency
 
-- [ ] Unify function argument naming conventions (e.g., use `.f` or
+- [x] Unify function argument naming conventions (e.g., use `.f` or
   `fun`, `x` instead of `X`) \> prefer lowercase and functional style
 - [ ] Consolidate and centralize helper functions (`.check_fapply_args`,
   `splitpb`)
