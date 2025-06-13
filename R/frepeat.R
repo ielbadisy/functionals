@@ -36,7 +36,7 @@
 #' mean(mc_result)  # estimated coverage
 #'
 #' @note If `expr` is passed as a function call (not a function or quoted expression),
-#' it will be evaluated **immediately**, not repeated. Use `function(...) { ... }` or `quote(...)` instead.
+#' it will be evaluated immediately, not repeated. Use `function(...) \\{ ... \\}` or `quote(...)` instead..
 #'
 #' @export
 
