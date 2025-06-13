@@ -1,4 +1,8 @@
-#' Validate and Normalize fapply Arguments
+#' @importFrom utils flush.console
+NULL
+
+
+#' Validate and normalize fapply arguments
 #'
 #' Internal helper to check and coerce inputs for `fapply()`.
 #'
@@ -43,7 +47,13 @@
 }
 
 
-# custom progress bar function
+#' Create a custom console progress bar
+#'
+#' Internal utility to build a simple console-based progress bar with estimated time remaining.
+#' Used inside `fapply()` when `pb = TRUE`.
+#'
+#' @keywords internal
+#' @noRd
 funr_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
   start_time <- proc.time()[["elapsed"]]
   i <- min
@@ -77,7 +87,19 @@ funr_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=
 }
 
 
-
+#' Split indices for chunked parallel processing
+#'
+#' Helper function to divide a sequence of indices into balanced chunks for parallel processing.
+#' Used internally by `fapply()` to manage load balancing.
+#'
+#' @param nx Integer. Total number of elements to split.
+#' @param ncl Integer. Number of cores (chunks).
+#' @param nout Approximate number of output groups for progress bar feedback.
+#'
+#' @return A list of integer vectors, each representing a chunk of indices.
+#'
+#' @keywords internal
+#' @noRd
 splitpb <- function(nx, ncl, nout = 100) {
   i <- seq_len(nx)
   if (ncl == 0L) return(list())
