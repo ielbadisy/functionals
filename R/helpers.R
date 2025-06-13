@@ -1,5 +1,9 @@
-
-#-------------------- arguments check
+#' Validate and Normalize fapply Arguments
+#'
+#' Internal helper to check and coerce inputs for `fapply()`.
+#'
+#' @keywords internal
+#' @noRd
 .check_fapply_args <- function(.x, .f, ncores, pb) {
   # check .x is atomic or list-like
   if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
@@ -38,8 +42,6 @@
   list(result = NULL, .x = .x, .f = .f, ncores = ncores, pb = pb)
 }
 
-
-#-------------------- internal progression bars
 
 # custom progress bar function
 funr_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
