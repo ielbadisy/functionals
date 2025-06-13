@@ -1,11 +1,40 @@
-# core functional mapping tools in funr
+#' Apply a function over a list or vector with optional parallelism and progress
+#'
+#' Applies a function `.f` to each element of `.x`, using optional parallel computation
+#' and progress bar tracking. Designed as a parallel-compatible replacement for `lapply()`.
+#'
+#' @param .x A list or atomic vector of elements to iterate over. If not a list, it will be coerced.
+#' @param .f A function to apply to each element of `.x`. Can be a function or a string naming a function.
+#' @param ncores Integer. Number of cores to use for parallel processing. Default is `1` (sequential).
+#' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
+#' @param ... Additional arguments passed to `.f`.
+#'
+#' @return A list of results obtained by applying `.f` to each element of `.x`. The result is always a list.
+#'
+#' @examples
+#' slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
+#' x <- 1:100
+#'
+#' # Sequential without progress
+#' fapply(x, slow_fn)
+#'
+#' # Sequential with progress
+#' fapply(x, slow_fn, pb = TRUE)
+#'
+#' # Parallel execution (Linux/macOS)
+#' \dontrun{
+#' fapply(x, slow_fn, ncores = 4)
+#' fapply(x, slow_fn, ncores = 4, pb = TRUE)
+#' }
+#'
+#' @export
+
 fapply <- function(.x, .f, ncores = 1, pb = FALSE, ...) {
 
   ## check and normalize arguments
   args <- .check_fapply_args(.x, .f, ncores, pb)
   if (!is.null(args$result)) return(args$result)
   .x <- args$.x; .f <- args$.f; ncores <- args$ncores; pb <- args$pb
-
 
   .f <- match.fun(.f)
   if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
@@ -44,31 +73,3 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, ...) {
     }
   }
 }
-
-
-
-# A slow function for testing
-slow_fn <- function(x) {
-  Sys.sleep(0.01)
-  x^2
-}
-
-# Test data
-x <- 1:100
-
-# sequential without progress
-res1 <- fapply(x, slow_fn)
-stopifnot(identical(res1, as.list(x^2)))
-
-# sequential with progress
-res2 <- fapply(x, slow_fn, pb = TRUE)
-stopifnot(identical(res2, as.list(x^2)))
-
-# parallel without progress
-res3 <- fapply(x, slow_fn, ncores = 4)
-stopifnot(identical(res3, as.list(x^2)))
-
-# parallel with progress
-res4 <- fapply(x, slow_fn, ncores = 12, pb = TRUE)
-stopifnot(identical(res4, as.list(x^2)))
-
