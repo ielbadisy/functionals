@@ -172,7 +172,7 @@ print(mean_accuracy)
 
 ```
 
-## funr` Development TODO
+## `funr` development TODO
 
 ### Design and API consistency
 
@@ -182,20 +182,19 @@ print(mean_accuracy)
 
 ### Package structure and documentation
 
-* [ ] Add `@docType package` and `@keywords internal` where relevant
-* [ ] Add `.onLoad()` to initialize options (`pboptions`)
-* [ ] Document all functions using **Roxygen2** (`@param`, `@return`, `@examples`, `@export`)
-* [ ] Ensure all exported functions have complete `@examples` and `@return` tags
-* [ ] Proofread and polish `DESCRIPTION` Title and Description
-* [ ] Add `Authors@R` field with full name, role, and email
-* [ ] Add License declaration and check license of any reused code
+* [X] Add `@docType package` and `@keywords internal` where relevant
+* [X] Add `.onLoad()` to initialize options (`pboptions`)
+* [X] Document all functions using **Roxygen2** (`@param`, `@return`, `@examples`, `@export`)
+* [X] Ensure all exported functions have complete `@examples` and `@return` tags
+* [X] Proofread and polish `DESCRIPTION` Title and Description
+* [X] Add `Authors@R` field with full name, role, and email
+* [X] Add License declaration and check license of any reused code
 
 ### Testing and validation
 
-* [ ] Write unit tests for all core functions (`fmap*`, `fapply`, `frepeat`, `fcv`, ...)
-* [ ] Ensure acceptable test coverage with `testthat`
-* [ ] Run `devtools::check()` and fix all NOTES, WARNINGS, ERRORS
-* [ ] Run remote checks via `rhub::check_for_cran()`
+* [X] Write unit tests for all core functions (`fmap*`, `fapply`, `frepeat`, `fcv`, ...)
+* [X] Ensure acceptable test coverage with `testthat`
+* [X] Run `devtools::check()` and fix all NOTES, WARNINGS, ERRORS
 
 
 
