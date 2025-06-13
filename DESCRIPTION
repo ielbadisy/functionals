@@ -19,3 +19,4 @@ Suggests:
     rsample,
     future
 Config/testthat/edition: 3
+RoxygenNote: 7.3.2
