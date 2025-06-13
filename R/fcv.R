@@ -1,8 +1,7 @@
 #' Functional Cross-Validation mapping with parallelism support
 #'
 #' Applies a user-defined function `.f` to each element of `.splits`, typically from
-#' cross-validation objects such as `rsample::vfold_cv()`. Supports parallelism and
-#' progress bar display through `fapply()` backend.
+#' cross-validation objects such as `rsample::vfold_cv()`.
 #'
 #' @param .splits A list of resample splits (e.g., from `rsample::vfold_cv()`).
 #' @param .f A function to apply to each split. Typically expects a single `split` object.
