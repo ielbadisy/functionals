@@ -35,48 +35,59 @@ Built on base R with no heavy dependencies, `funr` streamlines functional worflo
 - `fapply()`: parallel + progress-enabled apply
 - `frepeat()`, `fcompose()`, `freduce()`: functional composition and iteration
 
+
 ## Comparison with similar packages
 
-### Feature Coverage
+### Feature coverage
 
-| Feature                | `funr`                    | `pbapply`              | `purrr`                  | Base R             |
-|------------------------|---------------------------|-------------------------|---------------------------|--------------------|
-| Element-wise map       | `fmap()`                  | `pblapply()`            | `map()`                   | `lapply()`         |
-| Multi-arg mapping      | `fmapn()`                 | —                       | `pmap()`                  | `Map()`            |
-| Row-wise mapping       | `fmapr()`                 | —                       | `pmap(df, ...)`           | `apply(df, 1, ...)`|
-| Column-wise mapping    | `fmapc()`                 | —                       | `map_df()` (manual)       | `apply(df, 2, ...)`|
-| Grouped operations     | `fmapg()`                 | —                       | `map(split(...))`         | `split()` + `lapply()` |
-| Parallelism            | `ncores` (built-in)       | `cl` or `future`        | via `furrr`               | manual             |
-| Progress bars          | Built-in native bar       | Built-in                | Not available             | None               |
-| Cross-validation       | `fcv()`                   | —                       | —                         | —                  |
-| Side-effect mapping    | `fwalk()`                 | —                       | `walk()`                  | `lapply()`         |
-| Functional utilities   | `freduce()`, `fcompose()`| —                       | `reduce()`, `compose()`   | `Reduce()`         |
+| Feature              | `funr`                      | `pbapply`    | `purrr`                       | Base R                         |
+| -------------------- | --------------------------- | ------------ | ----------------------------- | ------------------------------ |
+| Element-wise map     | `fmap()`                    | `pblapply()` | `map()`                       | `lapply()`                     |
+| Multi-arg mapping    | `fmapn()`                   | —            | `pmap()`                      | `Map()` / `mapply()`           |
+| Row-wise mapping     | `fmapr()`                   | —            | `pmap(df, ...)`               | `apply(df, 1, ...)`            |
+| Column-wise mapping  | `fmapc()`                   | —            | `imap()` *(not column-aware)* | `lapply(df, ...)`              |
+| Grouped operations   | `fmapg()`                   | —            | `map(split(...))`             | `split()` + `lapply()`         |
+| Parallelism          | Built-in via `ncores`       | via `cl`     | via `furrr`                   | `mclapply()` (Unix)            |
+| Progress bars        | Built-in native timer bar   | Built-in     | Not supported                 | None                           |
+| Cross-validation map | `fcv()`                     | —            | —                             | manual loop                    |
+| Side-effect mapping  | `fwalk()`                   | —            | `walk()`                      | `lapply()` + discard           |
+| Functional utilities | `freduce()`, `fcompose()`\* | —            | `reduce()`, `compose()`       | `Reduce()`, `compose()` (rare) |
+
+> \*Coming soon in your roadmap: `freduce()`, `fcompose()` etc.
+
+---
 
 ### Syntax equivalence
 
-| Task                           | `funr` Example                       | `pbapply`             | `purrr`                        | Base R                 |
-|--------------------------------|--------------------------------------|------------------------|-------------------------------|------------------------|
-| Map square                     | `fmap(1:5, \(x) x^2)`                | `pblapply(1:5, ...)`   | `map(1:5, ~ .x^2)`            | `lapply(1:5, ...)`     |
-| Map with 2 args                | `fmapn(list(1:3, 4:6), \(x,y) x+y)`  | —                      | `pmap(list(a,b), ~ x+y)`      | `Map(\(x,y) x+y, a,b)` |
-| Map over df rows              | `fmapr(df, \(row) row$a + row$b)`    | —                      | `pmap(df, ...)`               | `apply(df, 1, ...)`    |
-| Parallel + progress           | `fapply(1:100, slow_fn, 4, pb=TRUE)` | `pblapply(..., cl=4)`  | `future_map(..., .progress)`* | `mclapply(...)`        |
-| Reduce                        | `freduce(1:5, `+`)`                  | —                      | `reduce(1:5, `+`)`            | `Reduce(`+`, 1:5)`     |
+| Task                     | `funr` Example                          | `pbapply`            | `purrr` Example               | Base R                     |
+| ------------------------ | --------------------------------------- | -------------------- | ----------------------------- | -------------------------- |
+| Map square               | `fmap(1:5, \(x) x^2)`                   | `pblapply(1:5, ...)` | `map(1:5, ~ .x^2)`            | `lapply(1:5, ...)`         |
+| Map with 2 args          | `fmapn(list(1:3, 4:6), \(x,y) x+y)`     | —                    | `pmap(list(a,b), ~ x+y)`      | `Map(\(x,y) x+y, a, b)`    |
+| Map over data frame rows | `fmapr(df, \(row) row$a + row$b)`       | —                    | `pmap(df, ...)`               | `apply(df, 1, ...)`        |
+| Map over data frame cols | `fmapc(df, \(x, name) mean(x))`         | —                    | `imap(df, ...)`               | `lapply(df, ...)`          |
+| Grouped map              | `fmapg(df, f, by = "group")`            | —                    | `map(split(df, df$group), f)` | `split()` + `lapply()`     |
+| Parallel + progress      | `fmap(x, f, ncores = 4, pb = TRUE)`     | `pblapply(x, f, cl)` | `future_map(x, f)`            | `mclapply(x, f)` (Unix)    |
+| Repeat simulation        | `frepeat(times = 100, expr = rnorm(1))` | —                    | *(manual loop)*               | `replicate(100, rnorm(1))` |
+| Walk with side effects   | `fwalk(letters, cat)`                   | —                    | `walk(letters, cat)`          | `lapply(letters, cat)`     |
+| Reduce                   | `freduce(1:5, \`+\`)\` *(planned)*      | —                    | `reduce(1:5, \`+\`)\`         | `Reduce(\`+\`, 1:5)\`      |
 
-> \* `purrr` alone doesn’t support progress or parallel — you must combine `furrr` + `progressr`.
+---
 
-## Function reference table
+### Function reference table
 
-| Function     | Main Arguments                            | Output Type      | Description                                               |
-|--------------|--------------------------------------------|------------------|-----------------------------------------------------------|
-| `fmap()`     | `X`, `.f`, `ncores`, `pb`                  | `list`           | Map a function over a list/vector                         |
-| `fmapn()`    | `X_list`, `.f`, `ncores`, `pb`             | `list`           | Multi-input zipped map over lists                         |
-| `fmapr()`    | `data.frame`, `.f`, `ncores`, `pb`         | `list`           | Row-wise map over data.frame, each row as a list          |
-| `fmapc()`    | `data.frame`, `.f`, `ncores`, `pb`         | `list`           | Column-wise map over data.frame, with column name         |
-| `fmapg()`    | `data.frame`, `.f`, `by`, `ncores`, `pb`   | `list`           | Grouped map over `data.frame` by grouping column(s)       |
-| `fwalk()`    | `X`, `.f`, `ncores`, `pb`                  | `NULL`           | Walk over elements with `.f()` for side-effects           |
-| `fcv()`      | `splits`, `.f`, `ncores`, `pb`             | `list`           | Functional CV map over `rsample`-style splits             |
-| `frepeat()`  | `n`, `.f`, `ncores`, `pb`                  | `list`           | Repeat a function or expression `n` times                 |
-| `fapply()`   | `X`, `FUN`, `ncores`, `pb`, `...`          | `list`           | General-purpose parallel apply with progress support      |
+| Function    | Main Arguments                        | Output Type | Description                                                     |
+| ----------- | ------------------------------------- | ----------- | --------------------------------------------------------------- |
+| `fmap()`    | `.x`, `.f`, `ncores`, `pb`            | list        | Map function `.f` over elements of `.x`                         |
+| `fmapn()`   | `.l`, `.f`, `ncores`, `pb`            | list        | Map `.f` over multiple aligned lists of arguments               |
+| `fmapr()`   | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f` over each row of a data frame (as named list)          |
+| `fmapc()`   | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f(column, name)` over each column of a data frame         |
+| `fmapg()`   | `.df`, `.f`, `by`, `ncores`, `pb`     | list        | Map `.f(group_df)` over groups defined by `by`                  |
+| `fwalk()`   | `.x`, `.f`, `ncores`, `pb`            | NULL        | Side-effect-only version of `fmap()`                            |
+| `frepeat()` | `times`, `expr`, `.x`, `ncores`, `pb` | list/array  | Repeat a function or expression multiple times                  |
+| `fcv()`     | `.splits`, `.f`, `ncores`, `pb`       | list        | Map `.f` over a list of `rsample::vfold_cv` split objects       |
+| `fapply()`  | `.x`, `.f`, `ncores`, `pb`, `...`     | list        | Core backend for all parallel, progress-aware mapping functions |
+
+
 
 ## Philosophy
 
@@ -200,7 +211,7 @@ print(mean_accuracy)
 
 ### Documentation and usability
 
-* [ ] Update `README.md` with consistent examples and clear installation instructions
+* [X] Update `README.md` with consistent examples and clear installation instructions
 * [ ] Add comparison tables to README (vs `purrr`, `pbapply`, base R)
 * [ ] Create minimal reproducible example for each exported function
 * [ ] Add CONTRIBUTING.md or contribution section in README
