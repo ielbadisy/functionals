@@ -19,3 +19,8 @@ test_that("freduce handles init argument", {
 test_that("freduce supports right-to-left reduction", {
   expect_equal(freduce(1:3, function(x, y) paste0(x, y), .right = TRUE), "123")
 })
+
+test_that("freduce supports accumulation and simplification", {
+  expect_equal(freduce(1:4, `+`, .accumulate = TRUE), c(1, 3, 6, 10))
+  expect_equal(freduce(1:4, `+`, .accumulate = TRUE, .simplify = FALSE), as.list(c(1, 3, 6, 10)))
+})
