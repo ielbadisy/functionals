@@ -1,4 +1,4 @@
-#' Functional Cross-Validation mapping with parallelism support
+#' Functional Cross-Validation mapping
 #'
 #' Applies a user-defined function `.f` to each element of `.splits`, typically from
 #' cross-validation objects such as `rsample::vfold_cv()`.

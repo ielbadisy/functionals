@@ -1,4 +1,4 @@
-#' Functional Reduce
+#' Functional reduce
 #'
 #' Apply a binary function iteratively over a list or vector, reducing it to a single value or a sequence of intermediate results.
 #' This is a wrapper around [Reduce()] that supports optional initial values, right-to-left evaluation,

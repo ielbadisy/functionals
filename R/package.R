@@ -1,4 +1,4 @@
-#' funr: Functional Programming with Parallelism in R
+#' funr: Functional programming with parallelism in R
 #'
 #' This package provides a consistent and intuitive API for applying functions
 #' over lists, vectors, and data frames, with built-in support for parallelism

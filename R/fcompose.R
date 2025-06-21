@@ -1,4 +1,4 @@
-#' Compose Multiple Functions
+#' Compose multiple functions
 #'
 #' Create a new function by composing several functions, applied from right to left.
 #' Equivalent to `f1(f2(f3(...)))`.

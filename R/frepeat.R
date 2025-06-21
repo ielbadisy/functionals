@@ -1,4 +1,4 @@
-#' Repeat an expression or function call multiple times with parallelism
+#' Repeat an expression or function call multiple times
 #'
 #' Repeats an expression or function evaluation `times` times. If `expr` is a function, it is invoked
 #' with optional input `.x` and additional arguments. If `expr` is a quoted expression, it is evaluated

@@ -1,4 +1,4 @@
-#' Walk over a vector or list with side effects (optionally in parallel)
+#' Walk over a vector or list with side effects
 #'
 #' Applies a function `.f` to each element of `.x`, typically for its side effects (e.g., printing, writing files).
 #' This function is the side-effect-friendly equivalent of `fmap()`. Supports parallel execution and progress bar display.
