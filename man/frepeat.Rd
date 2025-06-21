@@ -2,7 +2,7 @@
 % Please edit documentation in R/frepeat.R
 \name{frepeat}
 \alias{frepeat}
-\title{Repeat an expression or function call multiple times with parallelism}
+\title{Repeat an expression or function call multiple times}
 \usage{
 frepeat(
   .x = NULL,

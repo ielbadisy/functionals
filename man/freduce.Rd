@@ -2,7 +2,7 @@
 % Please edit documentation in R/freduce.R
 \name{freduce}
 \alias{freduce}
-\title{Functional Reduce}
+\title{Functional reduce}
 \usage{
 freduce(
   .x,

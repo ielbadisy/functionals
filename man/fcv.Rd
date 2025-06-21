@@ -2,7 +2,7 @@
 % Please edit documentation in R/fcv.R
 \name{fcv}
 \alias{fcv}
-\title{Functional Cross-Validation mapping with parallelism support}
+\title{Functional Cross-Validation mapping}
 \usage{
 fcv(.splits, .f, ncores = NULL, pb = FALSE, ...)
 }

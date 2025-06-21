@@ -2,7 +2,7 @@
 % Please edit documentation in R/fwalk.R
 \name{fwalk}
 \alias{fwalk}
-\title{Walk over a vector or list with side effects (optionally in parallel)}
+\title{Walk over a vector or list with side effects}
 \usage{
 fwalk(.x, .f, ncores = NULL, pb = FALSE, ...)
 }

@@ -2,7 +2,7 @@
 % Please edit documentation in R/fcompose.R
 \name{fcompose}
 \alias{fcompose}
-\title{Compose Multiple Functions}
+\title{Compose multiple functions}
 \usage{
 fcompose(...)
 }
