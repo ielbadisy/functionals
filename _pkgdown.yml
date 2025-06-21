@@ -1,0 +1,34 @@
+template:
+  bootstrap: 5
+  bootswatch: flatly
+
+navbar:
+  title: "funr"
+  left:
+    - text: "Reference"
+      href: reference/index.html
+    - text: "Articles"
+      href: articles/index.html
+    - text: "GitHub"
+      href: https://github.com/ielbadisy/funr
+
+home:
+  title: "funr: Functional Mapping with Parallelism and Progress Bars"
+
+reference:
+  - title: "Mapping functions"
+    contents:
+      - fmap
+      - fmapn
+      - fmapr
+      - fmapc
+      - fmapg
+      - fwalk
+      - floop
+  - title: "Combinators"
+    contents:
+      - frepeat
+      - fcv
+      - freduce
+      - fcompose
+      - fapply
