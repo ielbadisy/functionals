@@ -20,3 +20,6 @@ Suggests:
     future
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
+URL: https://ielbadisy.github.io/funr
+BugReports: https://github.com/ielbadisy/funr/issues
+
