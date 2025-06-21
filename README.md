@@ -3,95 +3,44 @@
 
 ## Overview
 
-`funr` is a lightweight, dependency-free toolkit designed to extend and
-modernize R’s functional programming capabilities. It provides simple
-yet powerful tools to map, walk, reduce, compose, cross-validate, and
-parallelize computations, with native support for progress bars and
-works naturally with base R data structures without requiring conversion
-to special classes or tibble formats. It uses only base R with
-`parallel`, making it easy to integrate into R scripts, pipelines, or
-legacy codebases.
+`funr` is a lightweight toolkit for functional programming in R with
+built-in support for parallelism and progress bars. It extends base R’s
+functional tools with a consistent, minimal API for mapping, walking,
+reducing, cross-validating, and repeating computations across lists,
+data frames, and grouped data.
 
-## Why funr?
+## Function Reference Table
 
-Built on base R with no heavy dependencies, `funr` streamlines
-functional worflows with intuitive syntax and built-in support for
-parallelism and progress bars. it design keep things simple and
-readable.
-
-## Key features
-
-- `fmap()`: element-wise mapping
-- `fmapn()`: **n**-ary zipped mapping
-- `fmapr()`: **r**ow-wise data frame mapping
-- `fmapc()`: **c**olumn-wise mapping
-- `fmapg()`: **g**roup-wise processing
-- `fwalk()`: for side-effect actions
-- `fcv()`: **c**ross-**v**alidation engine
-- `fapply()`: parallel + progress-enabled apply
-- `frepeat()`, `fcompose()`, `freduce()`: functional composition and
-  iteration
-
-## Comparison with similar packages
-
-### Feature coverage
-
-| Feature | `funr` | `pbapply` | `purrr` | Base R |
-|----|----|----|----|----|
-| Element-wise map | `fmap()` | `pblapply()` | `map()` | `lapply()` |
-| Multi-arg mapping | `fmapn()` | — | `pmap()` | `Map()` / `mapply()` |
-| Row-wise mapping | `fmapr()` | — | `pmap(df, ...)` | `apply(df, 1, ...)` |
-| Column-wise mapping | `fmapc()` | — | `imap()` *(not column-aware)* | `lapply(df, ...)` |
-| Grouped operations | `fmapg()` | — | `map(split(...))` | `split()` + `lapply()` |
-| Parallelism | Built-in via `ncores` | via `cl` | via `furrr` | `mclapply()` (Unix) |
-| Progress bars | Built-in native timer bar | Built-in | Not supported | None |
-| Cross-validation map | `fcv()` | — | — | manual loop |
-| Side-effect mapping | `fwalk()` | — | `walk()` | `lapply()` + discard |
-| Functional utilities | `freduce()`, `fcompose()`\* | — | `reduce()`, `compose()` | `Reduce()`, `compose()` (rare) |
-
-> \*Coming soon in your roadmap: `freduce()`, `fcompose()` etc.
-
-------------------------------------------------------------------------
-
-### Syntax equivalence
-
-| Task | `funr` Example | `pbapply` | `purrr` Example | Base R |
-|----|----|----|----|----|
-| Map square | `fmap(1:5, \(x) x^2)` | `pblapply(1:5, ...)` | `map(1:5, ~ .x^2)` | `lapply(1:5, ...)` |
-| Map with 2 args | `fmapn(list(1:3, 4:6), \(x,y) x+y)` | — | `pmap(list(a,b), ~ x+y)` | `Map(\(x,y) x+y, a, b)` |
-| Map over data frame rows | `fmapr(df, \(row) row$a + row$b)` | — | `pmap(df, ...)` | `apply(df, 1, ...)` |
-| Map over data frame cols | `fmapc(df, \(x, name) mean(x))` | — | `imap(df, ...)` | `lapply(df, ...)` |
-| Grouped map | `fmapg(df, f, by = "group")` | — | `map(split(df, df$group), f)` | `split()` + `lapply()` |
-| Parallel + progress | `fmap(x, f, ncores = 4, pb = TRUE)` | `pblapply(x, f, cl)` | `future_map(x, f)` | `mclapply(x, f)` (Unix) |
-| Repeat simulation | `frepeat(times = 100, expr = rnorm(1))` | — | *(manual loop)* | `replicate(100, rnorm(1))` |
-| Walk with side effects | `fwalk(letters, cat)` | — | `walk(letters, cat)` | `lapply(letters, cat)` |
-| Reduce | `freduce(1:5, \`+\`)\` *(planned)* | — | `reduce(1:5, \`+\`)\` | `Reduce(\`+\`, 1:5)\` |
-
-------------------------------------------------------------------------
-
-### Function reference table
-
-| Function | Main Arguments | Output Type | Description |
+| Function | Main arguments | Output type | Description |
 |----|----|----|----|
-| `fmap()` | `.x`, `.f`, `ncores`, `pb` | list | Map function `.f` over elements of `.x` |
-| `fmapn()` | `.l`, `.f`, `ncores`, `pb` | list | Map `.f` over multiple aligned lists of arguments |
+| `fmap()` | `.x`, `.f`, `ncores`, `pb` | list | Map `.f` over elements of `.x` |
+| `fmapn()` | `.l`, `.f`, `ncores`, `pb` | list | Map `.f` over multiple aligned lists |
 | `fmapr()` | `.df`, `.f`, `ncores`, `pb` | list | Map `.f` over each row of a data frame (as named list) |
-| `fmapc()` | `.df`, `.f`, `ncores`, `pb` | list | Map `.f(column, name)` over each column of a data frame |
-| `fmapg()` | `.df`, `.f`, `by`, `ncores`, `pb` | list | Map `.f(group_df)` over groups defined by `by` |
-| `fwalk()` | `.x`, `.f`, `ncores`, `pb` | NULL | Side-effect-only version of `fmap()` |
-| `frepeat()` | `times`, `expr`, `.x`, `ncores`, `pb` | list/array | Repeat a function or expression multiple times |
-| `fcv()` | `.splits`, `.f`, `ncores`, `pb` | list | Map `.f` over a list of `rsample::vfold_cv` split objects |
-| `fapply()` | `.x`, `.f`, `ncores`, `pb`, `...` | list | Core backend for all parallel, progress-aware mapping functions |
+| `fmapc()` | `.df`, `.f`, `ncores`, `pb` | list | Map `.f(column, name)` over each column |
+| `fmapg()` | `.df`, `.f`, `by`, `ncores`, `pb` | list | Map `.f(group_df)` over groups defined by a column |
+| `floop()` | `.x`, `.f`, `...`, `ncores`, `pb` | list | General-purpose functional loop with side-effects |
+| `fwalk()` | `.x`, `.f`, `ncores`, `pb` | NULL | Map `.f` over `.x` for side-effects only (invisible return) |
+| `frepeat()` | `times`, `expr`, `.x`, `ncores`, `pb` | list/vector | Repeat a call/expression multiple times |
+| `fcv()` | `.splits`, `.f`, `ncores`, `pb` | list | Map `.f` over resampling splits from `rsample::vfold_cv()` |
+| `freduce()` | `.x`, `.f`, `...` | scalar/list | Reduce `.x` using a binary function `.f` |
+| `fcompose()` | any number of functions `f1, f2, ...` | function | Compose multiple functions: `f1(f2(...(x)))` |
+| `fapply()` | `.x`, `.f`, `ncores`, `pb`, `...` | list | Core internal utility for applying a function over `.x` |
 
-## Philosophy
+## Syntax Equivalence
 
-`funr` promotes a minimalist but powerful approach to data
-transformation:
-
-- **Functional**: All tools are pure functions.
-- **Composable**: Can be easily combined into pipelines.
-- **Transparent**: No magic, only base R principles.
-- **Reproducible**: Built for batch workflows, simulations, CV.
+| Task | `funr` Example | `purrr` Example | Base R |
+|----|----|----|----|
+| Map square | `fmap(1:5, function(x) x^2)` | `map(1:5, function(x) x^2)` | `lapply(1:5, function(x) x^2)` |
+| Map over N arguments | `fmapn(list(1:3, 4:6, 7:9), function(x, y, z) x + y + z)` | `pmap(list(1:3, 4:6, 7:9), function(x, y, z) ...)` | `Map(function(x, y, z) ..., 1:3, 4:6, 7:9)` |
+| Map over data frame rows | `fmapr(df, function(row) row$a + row$b)` | `pmap(df[c("a", "b")], function(x, y) x + y)` | `apply(df, 1, function(row) ...)` |
+| Map over data frame cols | `fmapc(df, function(x, name) mean(x))` | `imap(df, function(x, name) mean(x))` | `lapply(df, mean)` |
+| Grouped map | `fmapg(df, f, by = "group")` | `map(split(df, df$group), f)` | `lapply(split(df, df$group), f)` |
+| General-purpose loop | `floop(1:3, function(x) cat(x))` | *(manual recursion)* | `for (x in 1:3) cat(x)` |
+| Parallel + progress | `fmap(x, f, ncores = 4, pb = TRUE)` | *(future_map(x, f))* with `progressr` | `parLapply(cl, x, f)` or `mclapply()` |
+| Repeat simulation | `frepeat(100, function() rnorm(1))` | *(manual loop)* | `replicate(100, rnorm(1))` |
+| Walk with side effects | `fwalk(letters, function(x) cat(x))` | `walk(letters, function(x) cat(x))` | `lapply(letters, cat)` |
+| Reduce | `` freduce(1:5, `+`) `` | `` reduce(1:5, `+`) `` | `` Reduce(`+`, 1:5) `` |
+| Compose functions | `fcompose(sqrt, abs)(-4)` | `compose(sqrt, abs)(-4)` | `(function(x) sqrt(abs(x)))(-4)` |
 
 ## Why no formula interface like `~ .x + .y`?
 
@@ -107,135 +56,232 @@ This decision is based on:
 
 We may consider adding tidy evaluation support (e.g., with quosures or
 `rlang::as_function`) in a future release. However, the current
-philosophy favors clarity, portability, and simplicity.
+philosophy favors clarity and simplicity.
 
 ## Installation
 
 ``` r
 # install.packages("funr") # when available
-#remotes::install_github("yourusername/funr")
+#remotes::install_github("ielabdisy/funr")
 ```
 
-## Example 1
+## Examples
 
 ``` r
-#library(funr)
-#slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
-
-# Parallel with progress
-#res <- fapply(1:100, slow_fn, ncores = 4, pb = TRUE)
-```
-
-## Example 2
-
-``` r
-library(tidymodels)
+library(funr)
+library(purrr)
+library(furrr)
+#> Loading required package: future
+library(pbapply)
 library(dplyr)
-#library(funr)  
+#> 
+#> Attaching package: 'dplyr'
+#> The following objects are masked from 'package:stats':
+#> 
+#>     filter, lag
+#> The following objects are masked from 'package:base':
+#> 
+#>     intersect, setdiff, setequal, union
+library(rsample)
 
-set.seed(123)
+plan(multisession)
 
-# -------------------------------
-# Step 1: Define model + workflow
-# -------------------------------
-# This sets up a decision tree classification model using tidymodels
-workflow <- workflows::workflow() |>
-  add_model(
-    decision_tree() |>
-      set_engine("rpart") |>
-      set_mode("classification")
-  ) |>
-  add_formula(Species ~ .)
-
-# ------------------------------------
-# Step 2: Define evaluation for 1 fold
-# ------------------------------------
-# Takes a split object and returns metrics for the fitted model
-evaluate_split <- function(split) {
-  fit <- fit(workflow, analysis(split))
-  preds <- predict(fit, assessment(split)) |>
-    bind_cols(assessment(split) |> select(Species))
-  metrics(preds, truth = Species, estimate = .pred_class)
+# utility to compare results
+compare_outputs <- function(label, x, y) {
+  cat("\n", label, "->", if (identical(x, y)) "dentical\n" else if (isTRUE(all.equal(x, y))) "nearly equal\n" else "different\n")
 }
 
-# ----------------------------------------------------
-# Step 3: Full CV pipeline using `funr` piping tools
-# ----------------------------------------------------
-# Explanation:
-# - `frepeat()` repeats cross-validation 10 times
-# - `fcv()` applies `evaluate_split()` to each fold in parallel
-# - `fmap()` filters results to keep only "accuracy" rows
-# - `bind_rows()` and `summarize()` compute mean and SD
-mean_accuracy <- iris |>
-  vfold_cv(v = 10) |> #funr
-  pull(splits) |>
-  frepeat(expr = function(x) fcv(x, evaluate_split, ncores = 4), times = 10) |> #funr
-  unlist(recursive = FALSE) |>
-  fmap(function(x) dplyr::filter(x, .metric == "accuracy")) |> #funr
-  bind_rows() |>
-  summarize(mean = mean(.estimate), sd = sd(.estimate))
-
-# Print result
-print(mean_accuracy)
+# strip names and convert to plain numeric vector
+as_vec <- function(x) as.numeric(unlist(x, use.names = FALSE))
 ```
 
-## `funr` development TODO
+### Element-wise map
 
-### Design and API consistency
+``` r
+x1 <- fmap(1:5, function(x) x^2)
+x2 <- lapply(1:5, function(x) x^2)
+x3 <- map(1:5, ~ .x^2)
+x4 <- future_map(1:5, ~ .x^2)
+x5 <- pblapply(1:5, function(x) x^2)
+compare_outputs("Element-wise: base", x1, x2)
+#> 
+#>  Element-wise: base -> dentical
+compare_outputs("Element-wise: purrr", x1, x3)
+#> 
+#>  Element-wise: purrr -> dentical
+compare_outputs("Element-wise: furrr", x1, x4)
+#> 
+#>  Element-wise: furrr -> dentical
+compare_outputs("Element-wise: pbapply", x1, x5)
+#> 
+#>  Element-wise: pbapply -> dentical
+```
 
-- [x] Unify function argument naming conventions (e.g., use `.f` or
-  `fun`, `x` instead of `X`) \> prefer lowercase and functional style
-- [x] Consolidate and centralize helper functions (`.check_fapply_args`,
-  `splitpb`)
-- [x] Move progress bar helpers (`funr_progress_bar` and others) to
-  `R/utils.R`
+## Multi-input map
 
-### Package structure and documentation
+``` r
+x1 <- fmapn(list(1:3, 4:6), function(x, y) x + y)
+x2 <- Map(`+`, 1:3, 4:6)
+x3 <- pmap(list(1:3, 4:6), ~ ..1 + ..2)
+x4 <- future_pmap(list(1:3, 4:6), ~ ..1 + ..2)
+compare_outputs("Multi-input: base", x1, x2)
+#> 
+#>  Multi-input: base -> dentical
+compare_outputs("Multi-input: purrr", x1, x3)
+#> 
+#>  Multi-input: purrr -> dentical
+compare_outputs("Multi-input: furrr", x1, x4)
+#> 
+#>  Multi-input: furrr -> dentical
+```
 
-- [x] Add `@docType package` and `@keywords internal` where relevant
-- [x] Add `.onLoad()` to initialize options (`pboptions`)
-- [x] Document all functions using **Roxygen2** (`@param`, `@return`,
-  `@examples`, `@export`)
-- [x] Ensure all exported functions have complete `@examples` and
-  `@return` tags
-- [x] Proofread and polish `DESCRIPTION` Title and Description
-- [x] Add `Authors@R` field with full name, role, and email
-- [x] Add License declaration and check license of any reused code
+### Row-wise map
 
-### Testing and validation
+``` r
+x1 <- fmapr(mtcars, function(row) row$mpg + row$cyl)
+rowlist <- lapply(seq_len(nrow(mtcars)), function(i) as.list(mtcars[i, ]))
+x2 <- lapply(rowlist, function(row) row$mpg + row$cyl)
+x3 <- map(rowlist, function(row) row$mpg + row$cyl)
+compare_outputs("Row-wise: base", as_vec(x1), as_vec(x2))
+#> 
+#>  Row-wise: base -> dentical
+compare_outputs("Row-wise: purrr", as_vec(x1), as_vec(x3))
+#> 
+#>  Row-wise: purrr -> dentical
+```
 
-- [x] Write unit tests for all core functions (`fmap*`, `fapply`,
-  `frepeat`, `fcv`, …)
-- [x] Ensure acceptable test coverage with `testthat`
-- [x] Run `devtools::check()` and fix all NOTES, WARNINGS, ERRORS
+### Column-wise map
 
-### Documentation and usability
+``` r
+x1 <- fmapc(mtcars, function(col, name) mean(col))
+x2 <- sapply(mtcars, mean)
+x3 <- imap(mtcars, ~ mean(.x))
+x4 <- future_imap(mtcars, ~ mean(.x))
+compare_outputs("Column-wise: base", x1, as.list(x2))
+#> 
+#>  Column-wise: base -> dentical
+compare_outputs("Column-wise: purrr", x1, x3)
+#> 
+#>  Column-wise: purrr -> dentical
+compare_outputs("Column-wise: furrr", x1, x4)
+#> 
+#>  Column-wise: furrr -> dentical
+```
 
-- [x] Update `README.md` with consistent examples and clear installation
-  instructions
+### Group-wise map
 
-- [ ] Add comparison tables to README (vs `purrr`, `pbapply`, base R)
+``` r
+x1 <- fmapg(iris, function(df) colMeans(df[1:4]), by = "Species")
+x2 <- lapply(split(iris, iris$Species), function(df) colMeans(df[1:4]))
+x3 <- map(split(iris, iris$Species), ~ colMeans(.x[1:4]))
+x4 <- future_map(split(iris, iris$Species), ~ colMeans(.x[1:4]))
+compare_outputs("Group-wise: base", x1, x2)
+#> 
+#>  Group-wise: base -> dentical
+compare_outputs("Group-wise: purrr", x1, x3)
+#> 
+#>  Group-wise: purrr -> dentical
+compare_outputs("Group-wise: furrr", x1, x4)
+#> 
+#>  Group-wise: furrr -> dentical
+```
 
-- [ ] Create minimal reproducible example for each exported function
+### Side-effect map
 
-- [ ] Add CONTRIBUTING.md or contribution section in README
+``` r
+cat("\nSide-effects:\n")
+#> 
+#> Side-effects:
+fwalk(1:3, print)
+#> [1] 1
+#> [1] 2
+#> [1] 3
+```
 
-- [ ] Create vignettes:
+### General-purpose loop with return values
 
-  - [ ] `benchmarking.Rmd` – benchmark vs `furrr`, `pbapply`
-  - [ ] `funr-vs-purrr.Rmd` – comparison and philosophy
-  - [ ] `funr-overview.Rmd` – design goals and examples
+``` r
+x1 <- floop(1:5, function(x) x^2, .capture = TRUE)
+x2 <- lapply(1:5, function(x) x^2)
+x3 <- {
+  out <- list()
+  for (i in 1:5) out[[i]] <- i^2
+  out
+}
+compare_outputs("floop() vs lapply()", x1, x2)
+#> 
+#>  floop() vs lapply() -> dentical
+compare_outputs("floop() vs for()", x1, x3)
+#> 
+#>  floop() vs for() -> dentical
+```
 
-- [ ] Review syntax equivalence table in the README to ensure accuracy
-  and consistency
+### General-purpose loop (side-effect only)
 
-- [ ] Add illustrative examples for each mapping function to clarify
-  usage and behavior
+``` r
+cat("\nGeneral-purpose loop (side-effects):\n")
+#> 
+#> General-purpose loop (side-effects):
+floop(1:3, function(x) cat("floop says:", x, "\n"), pb = TRUE, .capture = FALSE)
+#>  |                                                  |   0% elapsed=00h 00m 00s, remaining~...floop says: 1 
+#>  |================                                  |  33% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 2 
+#>  |=================================                 |  67% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 3 
+#>  |==================================================| 100% elapsed=00h 00m 00s, remaining~00h 00m 00s
+cat("for-loop equivalent:\n")
+#> for-loop equivalent:
+for (x in 1:3) cat("for says:", x, "\n")
+#> for says: 1 
+#> for says: 2 
+#> for says: 3
+```
 
-Let me know if you’d like to combine them into a single checklist item.
+### Cross-validation
 
-### GitHub integration
+``` r
+splits <- vfold_cv(iris, v = 3)$splits
+fit_model <- function(split) mean(analysis(split)$Sepal.Length)
+x1 <- fcv(splits, fit_model)
+x2 <- lapply(splits, fit_model)
+compare_outputs("CV map: base", x1, x2)
+#> 
+#>  CV map: base -> dentical
+```
 
-- [ ] Add GitHub URL with `usethis::use_github_links()`
-- [ ] Add badges: build status, coverage, license, CRAN version
-- [ ] Add `LICENSE.md`, `CODE_OF_CONDUCT.md`, and optionally `NEWS.md`
+### Repeat simulation
+
+``` r
+x1 <- frepeat(times = 10, expr = rnorm(1))
+x2 <- as.list(replicate(10, rnorm(1)))
+x3 <- as.list(pbreplicate(10, rnorm(1)))
+cat("\nRepeat: Results not comparable (randomized output)\n")
+#> 
+#> Repeat: Results not comparable (randomized output)
+```
+
+### Reduce
+
+``` r
+x1 <- freduce(1:5, `+`)
+x2 <- Reduce(`+`, 1:5)
+x3 <- reduce(1:5, `+`)
+compare_outputs("Reduce: base", x1, x2)
+#> 
+#>  Reduce: base -> dentical
+compare_outputs("Reduce: purrr", x1, x3)
+#> 
+#>  Reduce: purrr -> dentical
+```
+
+### Compose
+
+``` r
+x1 <- fcompose(sqrt, abs)(-4)
+x2 <- (function(x) sqrt(abs(x)))(-4)
+x3 <- compose(sqrt, abs)(-4)
+compare_outputs("Compose: base", x1, x2)
+#> 
+#>  Compose: base -> dentical
+compare_outputs("Compose: purrr", x1, x3)
+#> 
+#>  Compose: purrr -> dentical
+```
