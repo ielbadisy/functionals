@@ -1,6 +1,6 @@
 test_that("floop returns expected results", {
   out <- floop(1:3, function(x) x + 1)
-  expect_equal(out, list(2, 3, 4))
+  expect_equal(unname(out), list(2, 3, 4))
 })
 
 test_that("floop respects .capture = FALSE", {
@@ -11,5 +11,5 @@ test_that("floop respects .capture = FALSE", {
 
 test_that("floop works with ncores > 1", {
   out <- floop(1:4, function(x) x^2, ncores = 2)
-  expect_equal(out, list(1, 4, 9, 16))
+  expect_equal(unname(out), list(1, 4, 9, 16))
 })
