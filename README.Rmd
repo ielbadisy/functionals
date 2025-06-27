@@ -13,11 +13,11 @@ knitr::opts_chunk$set(
 
 
 
-# funr: Functional mapping with parallelism and progress bars
+# functionals: Functional mapping with parallelism and progress bars
 
 ## Overview
 
-`funr` is a lightweight toolkit for functional programming in R with built-in support for parallelism and progress bars. It extends base R's functional tools with a consistent, minimal API for mapping, walking, reducing, cross-validating, and repeating computations across lists, data frames, and grouped data.
+`functionals` is a lightweight toolkit for functional programming in R with built-in support for parallelism and progress bars. It extends base R's functional tools with a consistent, minimal API for mapping, walking, reducing, cross-validating, and repeating computations across lists, data frames, and grouped data.
 
 
 ## Function Reference Table
@@ -41,7 +41,7 @@ knitr::opts_chunk$set(
 
 ## Syntax Equivalence
 
-| Task                     | `funr` Example                                              | `purrr` Example                                    | Base R                                    |
+| Task                     | `functionals` Example                                              | `purrr` Example                                    | Base R                                    |
 |--------------------------|------------------------------------------------------------|----------------------------------------------------|--------------------------------------------|
 | Map square               | `fmap(1:5, function(x) x^2)`                               | `map(1:5, function(x) x^2)`                        | `lapply(1:5, function(x) x^2)`             |
 | Map over N arguments     | `fmapn(list(1:3, 4:6, 7:9), function(x, y, z) x + y + z)`  | `pmap(list(1:3, 4:6, 7:9), function(x, y, z) ...)` | `Map(function(x, y, z) ..., 1:3, 4:6, 7:9)` |
@@ -60,7 +60,7 @@ knitr::opts_chunk$set(
 
 ## Why no formula interface like `~ .x + .y`?
 
-While `funr` draws inspiration from `purrr`, it intentionally avoids supporting the formula-based anonymous function syntax (e.g., `~ .x + 1`) for now.
+While `functionals` draws inspiration from `purrr`, it intentionally avoids supporting the formula-based anonymous function syntax (e.g., `~ .x + 1`) for now.
 
 This decision is based on:
 
@@ -74,15 +74,15 @@ We may consider adding tidy evaluation support (e.g., with quosures or `rlang::a
 ## Installation
 
 ```{r}
-# install.packages("funr") # when available
-#remotes::install_github("ielabdisy/funr")
+# install.packages("functionals") # when available
+#remotes::install_github("ielabdisy/functionals")
 ```
 
 
 ## Examples 
 
 ```{r}
-library(funr)
+library(functionals)
 library(purrr)
 library(furrr)
 library(pbapply)
