@@ -88,6 +88,8 @@ library(furrr)
 library(pbapply)
 library(dplyr)
 library(rsample)
+library(bench)
+
 
 plan(multisession)
 
@@ -241,4 +243,3 @@ x3 <- compose(sqrt, abs)(-4)
 compare_outputs("Compose: base", x1, x2)
 compare_outputs("Compose: purrr", x1, x3)
 ```
-

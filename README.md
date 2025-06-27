@@ -83,6 +83,8 @@ library(dplyr)
 #> 
 #>     intersect, setdiff, setequal, union
 library(rsample)
+library(bench)
+
 
 plan(multisession)
 
