@@ -40,8 +40,9 @@
 #' }
 #'
 #' @export
-
 fmap <- function(.x, .f, ncores = NULL, pb = FALSE, ...) {
   .f <- match.fun(.f)
-  fapply(.x, .f, ncores = ncores, pb = pb, ...)
+  fapply(.x, .f, ncores = ncores %||% 1, pb = pb, ...)
 }
+
+
