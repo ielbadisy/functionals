@@ -1,29 +1,30 @@
 #' Apply a function over a list or vector with optional parallelism and progress
 #'
 #' Applies a function `.f` to each element of `.x`, using optional parallel computation
-#' and progress bar tracking. Designed as a parallel-compatible replacement for `lapply()`.
+#' and progress bar tracking. Uses batched `future_lapply()` for high-performance parallelism.
 #'
 #' @param .x A list or atomic vector of elements to iterate over. If not a list, it will be coerced.
 #' @param .f A function to apply to each element of `.x`. Can be a function or a string naming a function.
-#' @param ncores Integer. Number of cores to use for parallel processing. Default is `1` (sequential).
+#' @param ncores Integer. Number of CPU cores to use for parallel processing. Default is `1` (sequential).
 #' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
-#' @param cl Optional. A cluster object or "future" to use as backend. Default is NULL.
-#' @param load_balancing Logical. Use load balancing (parLapplyLB). Default is FALSE.
+#' @param cl Optional. A parallel backend to use. If `"future"`, uses `future::multisession`.
+#'   If a cluster object is provided, falls back to `parallel::parLapply()` or `parLapplyLB()`.
+#' @param load_balancing Logical. If using a cluster backend, whether to use `parLapplyLB`.
 #' @param ... Additional arguments passed to `.f`.
 #'
-#' @return A list of results obtained by applying `.f` to each element of `.x`. The result is always a list.
+#' @return A list of results obtained by applying `.f` to each element of `.x`.
 #'
 #' @export
-
 fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = FALSE, ...) {
-
-  ## match function
   .f <- match.fun(.f)
   if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
   if (!length(.x)) return(list())
 
-  ## sequential fallback
-  if ((is.null(cl) && ncores < 2) || length(.x) < 2) {
+  use_future <- is.character(cl) && cl == "future"
+  use_parallel <- (!is.null(cl) || ncores >= 2) && length(.x) >= 2
+
+  # sequential fallback
+  if (!use_parallel) {
     if (pb) {
       pb_bar <- funr_progress_bar(min = 0, max = length(.x))
       on.exit(pb_bar$kill(), add = TRUE)
@@ -38,45 +39,46 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = F
     }
   }
 
-  ## detect future backend
-  use_future <- is.character(cl) && cl == "future"
+  # batched future (recommended)
+  if (is.null(cl) || use_future) {
+    if (!requireNamespace("future", quietly = TRUE) ||
+        !requireNamespace("future.apply", quietly = TRUE)) {
+      stop("Packages 'future' and 'future.apply' are required for parallel execution.")
+    }
 
-  ## setup progress and chunking
-  Split <- splitpb(length(.x), ncores, nout = 100)
-  B <- length(Split)
+    future::plan(future::multisession, workers = ncores)
+    on.exit(future::plan(future::sequential), add = TRUE)
+
+    # batch .x into ncores chunks
+    Split <- split(.x, cut(seq_along(.x), breaks = ncores, labels = FALSE))
+    results <- future.apply::future_lapply(Split, function(chunk) {
+      lapply(chunk, .f, ...)
+    }, future.scheduling = 1)
+
+    return(unlist(results, recursive = FALSE))
+  }
+
+  # legacy cluster fallback
+  if (.Platform$OS.type == "windows" && is.null(cl)) {
+    cl <- parallel::makeCluster(ncores)
+    on.exit(parallel::stopCluster(cl), add = TRUE)
+  }
+
+  PAR_FUN <- if (load_balancing) parallel::parLapplyLB else parallel::parLapply
+
   if (pb) {
+    Split <- splitpb(length(.x), ncores, nout = 100)
+    B <- length(Split)
     pb_bar <- funr_progress_bar(min = 0, max = B)
     on.exit(pb_bar$kill(), add = TRUE)
-  }
 
-  rval <- vector("list", B)
-
-  ## windows special case
-  if (.Platform$OS.type == "windows" && !use_future) {
-    if (is.null(cl)) cl <- parallel::makeCluster(ncores)
-    on.exit(if (inherits(cl, "cluster")) parallel::stopCluster(cl), add = TRUE)
-
-    PAR_FUN <- if (load_balancing) parallel::parLapplyLB else parallel::parLapply
+    rval <- vector("list", B)
     for (i in seq_len(B)) {
       rval[[i]] <- PAR_FUN(cl, .x[Split[[i]]], .f, ...)
-      if (pb) pb_bar$up(i)
+      pb_bar$up(i)
     }
-
-    ## use future
-  } else if (use_future) {
-    if (!requireNamespace("future.apply", quietly = TRUE)) stop("future.apply required for cl='future'")
-    for (i in seq_len(B)) {
-      rval[[i]] <- future.apply::future_lapply(.x[Split[[i]]], .f, ..., future.stdout = FALSE)
-      if (pb) pb_bar$up(i)
-    }
-
-    ## Unix multicore
+    return(do.call(c, rval))
   } else {
-    for (i in seq_len(B)) {
-      rval[[i]] <- parallel::mclapply(.x[Split[[i]]], .f, ..., mc.cores = ncores)
-      if (pb) pb_bar$up(i)
-    }
+    return(PAR_FUN(cl, .x, .f, ...))
   }
-
-  return(do.call(c, rval))
 }
