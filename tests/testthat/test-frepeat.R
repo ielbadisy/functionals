@@ -6,10 +6,10 @@ test_that("frepeat evaluates an expression repeatedly", {
 
 test_that("frepeat works with a function and optional .x", {
   out1 <- frepeat(times = 3, expr = function() 1)
-  expect_equal(out1, list(1, 1, 1))
+  expect_equal(unname(out1), list(1, 1, 1))
 
   out2 <- frepeat(.x = 10, times = 3, expr = function(x) x + 1)
-  expect_equal(out2, list(11, 11, 11))
+  expect_equal(unname(out2), list(11, 11, 11))
 })
 
 test_that("frepeat can simplify the result", {
@@ -20,5 +20,5 @@ test_that("frepeat can simplify the result", {
 test_that("frepeat works in parallel with progress bar", {
   skip_on_cran()
   out <- frepeat(times = 5, expr = function() 1, ncores = 2, pb = TRUE)
-  expect_equal(out, rep(list(1), 5))
+  expect_equal(unname(out), rep(list(1), 5))
 })
