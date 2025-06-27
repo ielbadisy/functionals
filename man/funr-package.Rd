@@ -10,6 +10,14 @@ This package provides a consistent and intuitive API for applying functions
 over lists, vectors, and data frames, with built-in support for parallelism
 and progress bars.
 }
+\seealso{
+Useful links:
+\itemize{
+  \item \url{https://ielbadisy.github.io/funr}
+  \item Report bugs at \url{https://github.com/ielbadisy/funr/issues}
+}
+
+}
 \author{
 \strong{Maintainer}: Imad EL BADISY \email{elbadisyimad@gmail.com}
 

@@ -4,7 +4,7 @@
 \alias{fapply}
 \title{Apply a function over a list or vector with optional parallelism and progress}
 \usage{
-fapply(.x, .f, ncores = 1, pb = FALSE, ...)
+fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = FALSE, ...)
 }
 \arguments{
 \item{.x}{A list or atomic vector of elements to iterate over. If not a list, it will be coerced.}
@@ -15,6 +15,10 @@ fapply(.x, .f, ncores = 1, pb = FALSE, ...)
 
 \item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
 
+\item{cl}{Optional. A cluster object or "future" to use as backend. Default is NULL.}
+
+\item{load_balancing}{Logical. Use load balancing (parLapplyLB). Default is FALSE.}
+
 \item{...}{Additional arguments passed to `.f`.}
 }
 \value{
@@ -23,21 +27,4 @@ A list of results obtained by applying `.f` to each element of `.x`. The result 
 \description{
 Applies a function `.f` to each element of `.x`, using optional parallel computation
 and progress bar tracking. Designed as a parallel-compatible replacement for `lapply()`.
-}
-\examples{
-slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
-x <- 1:100
-
-# Sequential without progress
-fapply(x, slow_fn)
-
-# Sequential with progress
-fapply(x, slow_fn, pb = TRUE)
-
-# Parallel execution (Linux/macOS)
-\dontrun{
-fapply(x, slow_fn, ncores = 4)
-fapply(x, slow_fn, ncores = 4, pb = TRUE)
-}
-
 }
