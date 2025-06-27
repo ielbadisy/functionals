@@ -21,7 +21,7 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = F
   if (!length(.x)) return(list())
 
   use_future <- is.character(cl) && cl == "future"
-  use_parallel <- (!is.null(cl) || ncores >= 2) && length(.x) >= 2
+  use_parallel <- isTRUE(ncores > 1)
 
   # sequential fallback
   if (!use_parallel) {
