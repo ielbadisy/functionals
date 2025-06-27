@@ -11,20 +11,21 @@ fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = FALSE, ...)
 
 \item{.f}{A function to apply to each element of `.x`. Can be a function or a string naming a function.}
 
-\item{ncores}{Integer. Number of cores to use for parallel processing. Default is `1` (sequential).}
+\item{ncores}{Integer. Number of CPU cores to use for parallel processing. Default is `1` (sequential).}
 
 \item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
 
-\item{cl}{Optional. A cluster object or "future" to use as backend. Default is NULL.}
+\item{cl}{Optional. A parallel backend to use. If `"future"`, uses `future::multisession`.
+If a cluster object is provided, falls back to `parallel::parLapply()` or `parLapplyLB()`.}
 
-\item{load_balancing}{Logical. Use load balancing (parLapplyLB). Default is FALSE.}
+\item{load_balancing}{Logical. If using a cluster backend, whether to use `parLapplyLB`.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }
 \value{
-A list of results obtained by applying `.f` to each element of `.x`. The result is always a list.
+A list of results obtained by applying `.f` to each element of `.x`.
 }
 \description{
 Applies a function `.f` to each element of `.x`, using optional parallel computation
-and progress bar tracking. Designed as a parallel-compatible replacement for `lapply()`.
+and progress bar tracking. Uses batched `future_lapply()` for high-performance parallelism.
 }
