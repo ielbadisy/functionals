@@ -1,0 +1,984 @@
+<!DOCTYPE html>
+
+<html xmlns="http://www.w3.org/1999/xhtml">
+
+<head>
+
+<meta charset="utf-8">
+<meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<meta name="generator" content="pandoc" />
+<meta name="viewport" content="width=device-width, initial-scale=1">
+
+<style type="text/css">
+@font-face {
+font-family: octicons-link;
+src: url(data:font/woff;charset=utf-8;base64,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) format('woff');
+}
+body {
+-webkit-text-size-adjust: 100%;
+text-size-adjust: 100%;
+color: #333;
+font-family: "Helvetica Neue", Helvetica, "Segoe UI", Arial, freesans, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+font-size: 16px;
+line-height: 1.6;
+word-wrap: break-word;
+}
+a {
+background-color: transparent;
+}
+a:active,
+a:hover {
+outline: 0;
+}
+strong {
+font-weight: bold;
+}
+h1 {
+font-size: 2em;
+margin: 0.67em 0;
+}
+img {
+border: 0;
+}
+hr {
+box-sizing: content-box;
+height: 0;
+}
+pre {
+overflow: auto;
+}
+code,
+kbd,
+pre {
+font-family: monospace, monospace;
+font-size: 1em;
+}
+input {
+color: inherit;
+font: inherit;
+margin: 0;
+}
+html input[disabled] {
+cursor: default;
+}
+input {
+line-height: normal;
+}
+input[type="checkbox"] {
+box-sizing: border-box;
+padding: 0;
+}
+table {
+border-collapse: collapse;
+border-spacing: 0;
+}
+td,
+th {
+padding: 0;
+}
+* {
+box-sizing: border-box;
+}
+input {
+font: 13px / 1.4 Helvetica, arial, nimbussansl, liberationsans, freesans, clean, sans-serif, "Apple Color Emoji", "Segoe UI Emoji", "Segoe UI Symbol";
+}
+a {
+color: #4078c0;
+text-decoration: none;
+}
+a:hover,
+a:active {
+text-decoration: underline;
+}
+hr {
+height: 0;
+margin: 15px 0;
+overflow: hidden;
+background: transparent;
+border: 0;
+border-bottom: 1px solid #ddd;
+}
+hr:before {
+display: table;
+content: "";
+}
+hr:after {
+display: table;
+clear: both;
+content: "";
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 15px;
+margin-bottom: 15px;
+line-height: 1.1;
+}
+h1 {
+font-size: 30px;
+}
+h2 {
+font-size: 21px;
+}
+h3 {
+font-size: 16px;
+}
+h4 {
+font-size: 14px;
+}
+h5 {
+font-size: 12px;
+}
+h6 {
+font-size: 11px;
+}
+blockquote {
+margin: 0;
+}
+ul,
+ol {
+padding: 0;
+margin-top: 0;
+margin-bottom: 0;
+}
+ol ol,
+ul ol {
+list-style-type: lower-roman;
+}
+ul ul ol,
+ul ol ol,
+ol ul ol,
+ol ol ol {
+list-style-type: lower-alpha;
+}
+dd {
+margin-left: 0;
+}
+code {
+font-family: Consolas, "Liberation Mono", Menlo, Courier, monospace;
+font-size: 12px;
+}
+pre {
+margin-top: 0;
+margin-bottom: 0;
+font: 12px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+}
+.select::-ms-expand {
+opacity: 0;
+}
+.octicon {
+font: normal normal normal 16px/1 octicons-link;
+display: inline-block;
+text-decoration: none;
+text-rendering: auto;
+-webkit-font-smoothing: antialiased;
+-moz-osx-font-smoothing: grayscale;
+-webkit-user-select: none;
+-moz-user-select: none;
+-ms-user-select: none;
+user-select: none;
+}
+.octicon-link:before {
+content: '\f05c';
+}
+.markdown-body:before {
+display: table;
+content: "";
+}
+.markdown-body:after {
+display: table;
+clear: both;
+content: "";
+}
+.markdown-body>*:first-child {
+margin-top: 0 !important;
+}
+.markdown-body>*:last-child {
+margin-bottom: 0 !important;
+}
+a:not([href]) {
+color: inherit;
+text-decoration: none;
+}
+.anchor {
+display: inline-block;
+padding-right: 2px;
+margin-left: -18px;
+}
+.anchor:focus {
+outline: none;
+}
+h1,
+h2,
+h3,
+h4,
+h5,
+h6 {
+margin-top: 1em;
+margin-bottom: 16px;
+font-weight: bold;
+line-height: 1.4;
+}
+h1 .octicon-link,
+h2 .octicon-link,
+h3 .octicon-link,
+h4 .octicon-link,
+h5 .octicon-link,
+h6 .octicon-link {
+color: #000;
+vertical-align: middle;
+visibility: hidden;
+}
+h1:hover .anchor,
+h2:hover .anchor,
+h3:hover .anchor,
+h4:hover .anchor,
+h5:hover .anchor,
+h6:hover .anchor {
+text-decoration: none;
+}
+h1:hover .anchor .octicon-link,
+h2:hover .anchor .octicon-link,
+h3:hover .anchor .octicon-link,
+h4:hover .anchor .octicon-link,
+h5:hover .anchor .octicon-link,
+h6:hover .anchor .octicon-link {
+visibility: visible;
+}
+h1 {
+padding-bottom: 0.3em;
+font-size: 2.25em;
+line-height: 1.2;
+border-bottom: 1px solid #eee;
+}
+h1 .anchor {
+line-height: 1;
+}
+h2 {
+padding-bottom: 0.3em;
+font-size: 1.75em;
+line-height: 1.225;
+border-bottom: 1px solid #eee;
+}
+h2 .anchor {
+line-height: 1;
+}
+h3 {
+font-size: 1.5em;
+line-height: 1.43;
+}
+h3 .anchor {
+line-height: 1.2;
+}
+h4 {
+font-size: 1.25em;
+}
+h4 .anchor {
+line-height: 1.2;
+}
+h5 {
+font-size: 1em;
+}
+h5 .anchor {
+line-height: 1.1;
+}
+h6 {
+font-size: 1em;
+color: #777;
+}
+h6 .anchor {
+line-height: 1.1;
+}
+p,
+blockquote,
+ul,
+ol,
+dl,
+table,
+pre {
+margin-top: 0;
+margin-bottom: 16px;
+}
+hr {
+height: 4px;
+padding: 0;
+margin: 16px 0;
+background-color: #e7e7e7;
+border: 0 none;
+}
+ul,
+ol {
+padding-left: 2em;
+}
+ul ul,
+ul ol,
+ol ol,
+ol ul {
+margin-top: 0;
+margin-bottom: 0;
+}
+li>p {
+margin-top: 16px;
+}
+dl {
+padding: 0;
+}
+dl dt {
+padding: 0;
+margin-top: 16px;
+font-size: 1em;
+font-style: italic;
+font-weight: bold;
+}
+dl dd {
+padding: 0 16px;
+margin-bottom: 16px;
+}
+blockquote {
+padding: 0 15px;
+color: #777;
+border-left: 4px solid #ddd;
+}
+blockquote>:first-child {
+margin-top: 0;
+}
+blockquote>:last-child {
+margin-bottom: 0;
+}
+table {
+display: block;
+width: 100%;
+overflow: auto;
+word-break: normal;
+word-break: keep-all;
+}
+table th {
+font-weight: bold;
+}
+table th,
+table td {
+padding: 6px 13px;
+border: 1px solid #ddd;
+}
+table tr {
+background-color: #fff;
+border-top: 1px solid #ccc;
+}
+table tr:nth-child(2n) {
+background-color: #f8f8f8;
+}
+img {
+max-width: 100%;
+box-sizing: content-box;
+background-color: #fff;
+}
+code {
+padding: 0;
+padding-top: 0.2em;
+padding-bottom: 0.2em;
+margin: 0;
+font-size: 85%;
+background-color: rgba(0,0,0,0.04);
+border-radius: 3px;
+}
+code:before,
+code:after {
+letter-spacing: -0.2em;
+content: "\00a0";
+}
+pre>code {
+padding: 0;
+margin: 0;
+font-size: 100%;
+word-break: normal;
+white-space: pre;
+background: transparent;
+border: 0;
+}
+.highlight {
+margin-bottom: 16px;
+}
+.highlight pre,
+pre {
+padding: 16px;
+overflow: auto;
+font-size: 85%;
+line-height: 1.45;
+background-color: #f7f7f7;
+border-radius: 3px;
+}
+.highlight pre {
+margin-bottom: 0;
+word-break: normal;
+}
+pre {
+word-wrap: normal;
+}
+pre code {
+display: inline;
+max-width: initial;
+padding: 0;
+margin: 0;
+overflow: initial;
+line-height: inherit;
+word-wrap: normal;
+background-color: transparent;
+border: 0;
+}
+pre code:before,
+pre code:after {
+content: normal;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font-size: 11px;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.pl-c {
+color: #969896;
+}
+.pl-c1,
+.pl-s .pl-v {
+color: #0086b3;
+}
+.pl-e,
+.pl-en {
+color: #795da3;
+}
+.pl-s .pl-s1,
+.pl-smi {
+color: #333;
+}
+.pl-ent {
+color: #63a35c;
+}
+.pl-k {
+color: #a71d5d;
+}
+.pl-pds,
+.pl-s,
+.pl-s .pl-pse .pl-s1,
+.pl-sr,
+.pl-sr .pl-cce,
+.pl-sr .pl-sra,
+.pl-sr .pl-sre {
+color: #183691;
+}
+.pl-v {
+color: #ed6a43;
+}
+.pl-id {
+color: #b52a1d;
+}
+.pl-ii {
+background-color: #b52a1d;
+color: #f8f8f8;
+}
+.pl-sr .pl-cce {
+color: #63a35c;
+font-weight: bold;
+}
+.pl-ml {
+color: #693a17;
+}
+.pl-mh,
+.pl-mh .pl-en,
+.pl-ms {
+color: #1d3e81;
+font-weight: bold;
+}
+.pl-mq {
+color: #008080;
+}
+.pl-mi {
+color: #333;
+font-style: italic;
+}
+.pl-mb {
+color: #333;
+font-weight: bold;
+}
+.pl-md {
+background-color: #ffecec;
+color: #bd2c00;
+}
+.pl-mi1 {
+background-color: #eaffea;
+color: #55a532;
+}
+.pl-mdr {
+color: #795da3;
+font-weight: bold;
+}
+.pl-mo {
+color: #1d3e81;
+}
+kbd {
+display: inline-block;
+padding: 3px 5px;
+font: 11px Consolas, "Liberation Mono", Menlo, Courier, monospace;
+line-height: 10px;
+color: #555;
+vertical-align: middle;
+background-color: #fcfcfc;
+border: solid 1px #ccc;
+border-bottom-color: #bbb;
+border-radius: 3px;
+box-shadow: inset 0 -1px 0 #bbb;
+}
+.task-list-item {
+list-style-type: none;
+}
+.task-list-item+.task-list-item {
+margin-top: 3px;
+}
+.task-list-item input {
+margin: 0 0.35em 0.25em -1.6em;
+vertical-align: middle;
+}
+:checked+.radio-label {
+z-index: 1;
+position: relative;
+border-color: #4078c0;
+}
+.sourceLine {
+display: inline-block;
+}
+code .kw { color: #000000; }
+code .dt { color: #ed6a43; }
+code .dv { color: #009999; }
+code .bn { color: #009999; }
+code .fl { color: #009999; }
+code .ch { color: #009999; }
+code .st { color: #183691; }
+code .co { color: #969896; }
+code .ot { color: #0086b3; }
+code .al { color: #a61717; }
+code .fu { color: #63a35c; }
+code .er { color: #a61717; background-color: #e3d2d2; }
+code .wa { color: #000000; }
+code .cn { color: #008080; }
+code .sc { color: #008080; }
+code .vs { color: #183691; }
+code .ss { color: #183691; }
+code .im { color: #000000; }
+code .va {color: #008080; }
+code .cf { color: #000000; }
+code .op { color: #000000; }
+code .bu { color: #000000; }
+code .ex { color: #000000; }
+code .pp { color: #999999; }
+code .at { color: #008080; }
+code .do { color: #969896; }
+code .an { color: #008080; }
+code .cv { color: #008080; }
+code .in { color: #008080; }
+</style>
+<style>
+body {
+box-sizing: border-box;
+min-width: 200px;
+max-width: 980px;
+margin: 0 auto;
+padding: 45px;
+padding-top: 0px;
+}
+</style>
+
+
+</head>
+
+<body>
+
+<h1 id="functionals-functional-mapping-with-parallelism-and-progress-bars">functionals:
+Functional mapping with parallelism and progress bars</h1>
+<h2 id="overview">Overview</h2>
+<p><code>functionals</code> is a lightweight toolkit for functional
+programming in R with built-in support for parallelism and progress
+bars. It extends base R’s functional tools with a consistent, minimal
+API for mapping, walking, reducing, cross-validating, and repeating
+computations across lists, data frames, and grouped data.</p>
+<h2 id="function-reference-table">Function Reference Table</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Function</th>
+<th>Main arguments</th>
+<th>Output type</th>
+<th>Description</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td><code>fmap()</code></td>
+<td><code>.x</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f</code> over elements of <code>.x</code></td>
+</tr>
+<tr class="even">
+<td><code>fmapn()</code></td>
+<td><code>.l</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f</code> over multiple aligned lists</td>
+</tr>
+<tr class="odd">
+<td><code>fmapr()</code></td>
+<td><code>.df</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f</code> over each row of a data frame (as named
+list)</td>
+</tr>
+<tr class="even">
+<td><code>fmapc()</code></td>
+<td><code>.df</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f(column, name)</code> over each column</td>
+</tr>
+<tr class="odd">
+<td><code>fmapg()</code></td>
+<td><code>.df</code>, <code>.f</code>, <code>by</code>,
+<code>ncores</code>, <code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f(group_df)</code> over groups defined by a column</td>
+</tr>
+<tr class="even">
+<td><code>floop()</code></td>
+<td><code>.x</code>, <code>.f</code>, <code>...</code>,
+<code>ncores</code>, <code>pb</code></td>
+<td>list</td>
+<td>General-purpose functional loop with side-effects</td>
+</tr>
+<tr class="odd">
+<td><code>fwalk()</code></td>
+<td><code>.x</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>NULL</td>
+<td>Map <code>.f</code> over <code>.x</code> for side-effects only
+(invisible return)</td>
+</tr>
+<tr class="even">
+<td><code>frepeat()</code></td>
+<td><code>times</code>, <code>expr</code>, <code>.x</code>,
+<code>ncores</code>, <code>pb</code></td>
+<td>list/vector</td>
+<td>Repeat a call/expression multiple times</td>
+</tr>
+<tr class="odd">
+<td><code>fcv()</code></td>
+<td><code>.splits</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code></td>
+<td>list</td>
+<td>Map <code>.f</code> over resampling splits from
+<code>rsample::vfold_cv()</code></td>
+</tr>
+<tr class="even">
+<td><code>freduce()</code></td>
+<td><code>.x</code>, <code>.f</code>, <code>...</code></td>
+<td>scalar/list</td>
+<td>Reduce <code>.x</code> using a binary function <code>.f</code></td>
+</tr>
+<tr class="odd">
+<td><code>fcompose()</code></td>
+<td>any number of functions <code>f1, f2, ...</code></td>
+<td>function</td>
+<td>Compose multiple functions: <code>f1(f2(...(x)))</code></td>
+</tr>
+<tr class="even">
+<td><code>fapply()</code></td>
+<td><code>.x</code>, <code>.f</code>, <code>ncores</code>,
+<code>pb</code>, <code>...</code></td>
+<td>list</td>
+<td>Core internal utility for applying a function over
+<code>.x</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="syntax-equivalence">Syntax Equivalence</h2>
+<table>
+<thead>
+<tr class="header">
+<th>Task</th>
+<th><code>functionals</code> Example</th>
+<th><code>purrr</code> Example</th>
+<th>Base R</th>
+</tr>
+</thead>
+<tbody>
+<tr class="odd">
+<td>Map square</td>
+<td><code>fmap(1:5, function(x) x^2)</code></td>
+<td><code>map(1:5, function(x) x^2)</code></td>
+<td><code>lapply(1:5, function(x) x^2)</code></td>
+</tr>
+<tr class="even">
+<td>Map over N arguments</td>
+<td><code>fmapn(list(1:3, 4:6, 7:9), function(x, y, z) x + y + z)</code></td>
+<td><code>pmap(list(1:3, 4:6, 7:9), function(x, y, z) ...)</code></td>
+<td><code>Map(function(x, y, z) ..., 1:3, 4:6, 7:9)</code></td>
+</tr>
+<tr class="odd">
+<td>Map over data frame rows</td>
+<td><code>fmapr(df, function(row) row$a + row$b)</code></td>
+<td><code>pmap(df[c(&quot;a&quot;, &quot;b&quot;)], function(x, y) x + y)</code></td>
+<td><code>apply(df, 1, function(row) ...)</code></td>
+</tr>
+<tr class="even">
+<td>Map over data frame cols</td>
+<td><code>fmapc(df, function(x, name) mean(x))</code></td>
+<td><code>imap(df, function(x, name) mean(x))</code></td>
+<td><code>lapply(df, mean)</code></td>
+</tr>
+<tr class="odd">
+<td>Grouped map</td>
+<td><code>fmapg(df, f, by = &quot;group&quot;)</code></td>
+<td><code>map(split(df, df$group), f)</code></td>
+<td><code>lapply(split(df, df$group), f)</code></td>
+</tr>
+<tr class="even">
+<td>General-purpose loop</td>
+<td><code>floop(1:3, function(x) cat(x))</code></td>
+<td><em>(manual recursion)</em></td>
+<td><code>for (x in 1:3) cat(x)</code></td>
+</tr>
+<tr class="odd">
+<td>Parallel + progress</td>
+<td><code>fmap(x, f, ncores = 4, pb = TRUE)</code></td>
+<td><em>(future_map(x, f))</em> with <code>progressr</code></td>
+<td><code>parLapply(cl, x, f)</code> or <code>mclapply()</code></td>
+</tr>
+<tr class="even">
+<td>Repeat simulation</td>
+<td><code>frepeat(100, function() rnorm(1))</code></td>
+<td><em>(manual loop)</em></td>
+<td><code>replicate(100, rnorm(1))</code></td>
+</tr>
+<tr class="odd">
+<td>Walk with side effects</td>
+<td><code>fwalk(letters, function(x) cat(x))</code></td>
+<td><code>walk(letters, function(x) cat(x))</code></td>
+<td><code>lapply(letters, cat)</code></td>
+</tr>
+<tr class="even">
+<td>Reduce</td>
+<td><code>freduce(1:5, `+`)</code></td>
+<td><code>reduce(1:5, `+`)</code></td>
+<td><code>Reduce(`+`, 1:5)</code></td>
+</tr>
+<tr class="odd">
+<td>Compose functions</td>
+<td><code>fcompose(sqrt, abs)(-4)</code></td>
+<td><code>compose(sqrt, abs)(-4)</code></td>
+<td><code>(function(x) sqrt(abs(x)))(-4)</code></td>
+</tr>
+</tbody>
+</table>
+<h2 id="why-no-formula-interface-like--x--y">Why no formula interface
+like <code>~ .x + .y</code>?</h2>
+<p>While <code>functionals</code> draws inspiration from
+<code>purrr</code>, it intentionally avoids supporting the formula-based
+anonymous function syntax (e.g., <code>~ .x + 1</code>) for now.</p>
+<p>This decision is based on:</p>
+<ul>
+<li>Keeping dependencies minimal (no reliance on
+<code>rlang</code>)</li>
+<li>Avoiding non-standard evaluation that can confuse new users</li>
+<li>Encouraging explicit, readable code using
+<code>function(x) { ... }</code> style</li>
+</ul>
+<p>We may consider adding tidy evaluation support (e.g., with quosures
+or <code>rlang::as_function</code>) in a future release. However, the
+current philosophy favors clarity and simplicity.</p>
+<h2 id="installation">Installation</h2>
+<div class="sourceCode" id="cb1"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb1-1"><a href="#cb1-1" tabindex="-1"></a><span class="co"># install.packages(&quot;functionals&quot;) # when available</span></span>
+<span id="cb1-2"><a href="#cb1-2" tabindex="-1"></a><span class="co">#remotes::install_github(&quot;ielbadisy/functionals&quot;)</span></span></code></pre></div>
+<h2 id="examples">Examples</h2>
+<div class="sourceCode" id="cb2"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb2-1"><a href="#cb2-1" tabindex="-1"></a><span class="fu">library</span>(functionals)</span>
+<span id="cb2-2"><a href="#cb2-2" tabindex="-1"></a><span class="fu">library</span>(purrr)</span>
+<span id="cb2-3"><a href="#cb2-3" tabindex="-1"></a><span class="fu">library</span>(furrr)</span>
+<span id="cb2-4"><a href="#cb2-4" tabindex="-1"></a><span class="co">#&gt; Loading required package: future</span></span>
+<span id="cb2-5"><a href="#cb2-5" tabindex="-1"></a><span class="fu">library</span>(pbapply)</span>
+<span id="cb2-6"><a href="#cb2-6" tabindex="-1"></a><span class="fu">library</span>(dplyr)</span>
+<span id="cb2-7"><a href="#cb2-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-8"><a href="#cb2-8" tabindex="-1"></a><span class="co">#&gt; Attaching package: &#39;dplyr&#39;</span></span>
+<span id="cb2-9"><a href="#cb2-9" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:stats&#39;:</span></span>
+<span id="cb2-10"><a href="#cb2-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-11"><a href="#cb2-11" tabindex="-1"></a><span class="co">#&gt;     filter, lag</span></span>
+<span id="cb2-12"><a href="#cb2-12" tabindex="-1"></a><span class="co">#&gt; The following objects are masked from &#39;package:base&#39;:</span></span>
+<span id="cb2-13"><a href="#cb2-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb2-14"><a href="#cb2-14" tabindex="-1"></a><span class="co">#&gt;     intersect, setdiff, setequal, union</span></span>
+<span id="cb2-15"><a href="#cb2-15" tabindex="-1"></a><span class="fu">library</span>(rsample)</span>
+<span id="cb2-16"><a href="#cb2-16" tabindex="-1"></a><span class="fu">library</span>(bench)</span>
+<span id="cb2-17"><a href="#cb2-17" tabindex="-1"></a></span>
+<span id="cb2-18"><a href="#cb2-18" tabindex="-1"></a></span>
+<span id="cb2-19"><a href="#cb2-19" tabindex="-1"></a><span class="fu">plan</span>(multisession)</span>
+<span id="cb2-20"><a href="#cb2-20" tabindex="-1"></a></span>
+<span id="cb2-21"><a href="#cb2-21" tabindex="-1"></a><span class="co"># utility to compare results</span></span>
+<span id="cb2-22"><a href="#cb2-22" tabindex="-1"></a>compare_outputs <span class="ot">&lt;-</span> <span class="cf">function</span>(label, x, y) {</span>
+<span id="cb2-23"><a href="#cb2-23" tabindex="-1"></a>  <span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>, label, <span class="st">&quot;-&gt;&quot;</span>, <span class="cf">if</span> (<span class="fu">identical</span>(x, y)) <span class="st">&quot;dentical</span><span class="sc">\n</span><span class="st">&quot;</span> <span class="cf">else</span> <span class="cf">if</span> (<span class="fu">isTRUE</span>(<span class="fu">all.equal</span>(x, y))) <span class="st">&quot;nearly equal</span><span class="sc">\n</span><span class="st">&quot;</span> <span class="cf">else</span> <span class="st">&quot;different</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb2-24"><a href="#cb2-24" tabindex="-1"></a>}</span>
+<span id="cb2-25"><a href="#cb2-25" tabindex="-1"></a></span>
+<span id="cb2-26"><a href="#cb2-26" tabindex="-1"></a><span class="co"># strip names and convert to plain numeric vector</span></span>
+<span id="cb2-27"><a href="#cb2-27" tabindex="-1"></a>as_vec <span class="ot">&lt;-</span> <span class="cf">function</span>(x) <span class="fu">as.numeric</span>(<span class="fu">unlist</span>(x, <span class="at">use.names =</span> <span class="cn">FALSE</span>))</span></code></pre></div>
+<h3 id="element-wise-map">Element-wise map</h3>
+<div class="sourceCode" id="cb3"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb3-1"><a href="#cb3-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmap</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-2"><a href="#cb3-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-3"><a href="#cb3-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="sc">~</span> .x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-4"><a href="#cb3-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_map</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="sc">~</span> .x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-5"><a href="#cb3-5" tabindex="-1"></a>x5 <span class="ot">&lt;-</span> <span class="fu">pblapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb3-6"><a href="#cb3-6" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Element-wise: base&quot;</span>, x1, x2)</span>
+<span id="cb3-7"><a href="#cb3-7" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-8"><a href="#cb3-8" tabindex="-1"></a><span class="co">#&gt;  Element-wise: base -&gt; dentical</span></span>
+<span id="cb3-9"><a href="#cb3-9" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Element-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb3-10"><a href="#cb3-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-11"><a href="#cb3-11" tabindex="-1"></a><span class="co">#&gt;  Element-wise: purrr -&gt; dentical</span></span>
+<span id="cb3-12"><a href="#cb3-12" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Element-wise: furrr&quot;</span>, x1, x4)</span>
+<span id="cb3-13"><a href="#cb3-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-14"><a href="#cb3-14" tabindex="-1"></a><span class="co">#&gt;  Element-wise: furrr -&gt; dentical</span></span>
+<span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Element-wise: pbapply&quot;</span>, x1, x5)</span>
+<span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;  Element-wise: pbapply -&gt; dentical</span></span></code></pre></div>
+<h2 id="multi-input-map">Multi-input map</h2>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapn</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="cf">function</span>(x, y) x <span class="sc">+</span> y)</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Map</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: base&quot;</span>, x1, x2)</span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;  Multi-input: base -&gt; dentical</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: purrr&quot;</span>, x1, x3)</span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;  Multi-input: purrr -&gt; dentical</span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: furrr&quot;</span>, x1, x4)</span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;  Multi-input: furrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="row-wise-map">Row-wise map</h3>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapr</span>(mtcars, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>rowlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(mtcars)), <span class="cf">function</span>(i) <span class="fu">as.list</span>(mtcars[i, ]))</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: base&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x2))</span>
+<span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;  Row-wise: base -&gt; dentical</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: purrr&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x3))</span>
+<span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;  Row-wise: purrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="column-wise-map">Column-wise map</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapc</span>(mtcars, <span class="cf">function</span>(col, name) <span class="fu">mean</span>(col))</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(mtcars, mean)</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: base&quot;</span>, x1, <span class="fu">as.list</span>(x2))</span>
+<span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;  Column-wise: base -&gt; dentical</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;  Column-wise: purrr -&gt; dentical</span></span>
+<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: furrr&quot;</span>, x1, x4)</span>
+<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  Column-wise: furrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="group-wise-map">Group-wise map</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapg</span>(iris, <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]), <span class="at">by =</span> <span class="st">&quot;Species&quot;</span>)</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: base&quot;</span>, x1, x2)</span>
+<span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;  Group-wise: base -&gt; dentical</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;  Group-wise: purrr -&gt; dentical</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: furrr&quot;</span>, x1, x4)</span>
+<span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;  Group-wise: furrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="side-effect-map">Side-effect map</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Side-effects:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; Side-effects:</span></span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">fwalk</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, print)</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<h3 id="general-purpose-loop-with-return-values">General-purpose loop
+with return values</h3>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>, <span class="at">.capture =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> {</span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) out[[i]] <span class="ot">&lt;-</span> i<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  out</span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>}</span>
+<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs lapply()&quot;</span>, x1, x2)</span>
+<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;  floop() vs lapply() -&gt; dentical</span></span>
+<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs for()&quot;</span>, x1, x3)</span>
+<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;  floop() vs for() -&gt; dentical</span></span></code></pre></div>
+<h3 id="general-purpose-loop-side-effect-only">General-purpose loop
+(side-effect only)</h3>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">General-purpose loop (side-effects):</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; General-purpose loop (side-effects):</span></span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) <span class="fu">cat</span>(<span class="st">&quot;floop says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), <span class="at">pb =</span> <span class="cn">TRUE</span>, <span class="at">.capture =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;  |                                                  |   0% elapsed=00h 00m 00s, remaining~...floop says: 1 </span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;  |================                                  |  33% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 2 </span></span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;  |=================================                 |  67% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 3 </span></span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;  |==================================================| 100% elapsed=00h 00m 00s, remaining~00h 00m 00s</span></span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;for-loop equivalent:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; for-loop equivalent:</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="fu">cat</span>(<span class="st">&quot;for says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; for says: 1 </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; for says: 2 </span></span>
+<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; for says: 3</span></span></code></pre></div>
+<h3 id="cross-validation">Cross-validation</h3>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>splits <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(iris, <span class="at">v =</span> <span class="dv">3</span>)<span class="sc">$</span>splits</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>fit_model <span class="ot">&lt;-</span> <span class="cf">function</span>(split) <span class="fu">mean</span>(<span class="fu">analysis</span>(split)<span class="sc">$</span>Sepal.Length)</span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcv</span>(splits, fit_model)</span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(splits, fit_model)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;CV map: base&quot;</span>, x1, x2)</span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;  CV map: base -&gt; dentical</span></span></code></pre></div>
+<h3 id="repeat-simulation">Repeat simulation</h3>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">frepeat</span>(<span class="at">times =</span> <span class="dv">10</span>, <span class="at">expr =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>))</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">replicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">pbreplicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Repeat: Results not comparable (randomized output)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; Repeat: Results not comparable (randomized output)</span></span></code></pre></div>
+<h3 id="reduce">Reduce</h3>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">freduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: base&quot;</span>, x1, x2)</span>
+<span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;  Reduce: base -&gt; dentical</span></span>
+<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: purrr&quot;</span>, x1, x3)</span>
+<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt;  Reduce: purrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="compose">Compose</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcompose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> (<span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">abs</span>(x)))(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">compose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: base&quot;</span>, x1, x2)</span>
+<span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt;  Compose: base -&gt; dentical</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: purrr&quot;</span>, x1, x3)</span>
+<span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;  Compose: purrr -&gt; dentical</span></span></code></pre></div>
+
+</body>
+</html>

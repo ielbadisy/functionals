@@ -75,7 +75,7 @@ We may consider adding tidy evaluation support (e.g., with quosures or `rlang::a
 
 ```{r}
 # install.packages("functionals") # when available
-#remotes::install_github("ielabdisy/functionals")
+#remotes::install_github("ielbadisy/functionals")
 ```
 
 

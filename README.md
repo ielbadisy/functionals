@@ -11,36 +11,36 @@ lists, data frames, and grouped data.
 
 ## Function Reference Table
 
-| Function | Main arguments | Output type | Description |
-|----|----|----|----|
-| `fmap()` | `.x`, `.f`, `ncores`, `pb` | list | Map `.f` over elements of `.x` |
-| `fmapn()` | `.l`, `.f`, `ncores`, `pb` | list | Map `.f` over multiple aligned lists |
-| `fmapr()` | `.df`, `.f`, `ncores`, `pb` | list | Map `.f` over each row of a data frame (as named list) |
-| `fmapc()` | `.df`, `.f`, `ncores`, `pb` | list | Map `.f(column, name)` over each column |
-| `fmapg()` | `.df`, `.f`, `by`, `ncores`, `pb` | list | Map `.f(group_df)` over groups defined by a column |
-| `floop()` | `.x`, `.f`, `...`, `ncores`, `pb` | list | General-purpose functional loop with side-effects |
-| `fwalk()` | `.x`, `.f`, `ncores`, `pb` | NULL | Map `.f` over `.x` for side-effects only (invisible return) |
-| `frepeat()` | `times`, `expr`, `.x`, `ncores`, `pb` | list/vector | Repeat a call/expression multiple times |
-| `fcv()` | `.splits`, `.f`, `ncores`, `pb` | list | Map `.f` over resampling splits from `rsample::vfold_cv()` |
-| `freduce()` | `.x`, `.f`, `...` | scalar/list | Reduce `.x` using a binary function `.f` |
-| `fcompose()` | any number of functions `f1, f2, ...` | function | Compose multiple functions: `f1(f2(...(x)))` |
-| `fapply()` | `.x`, `.f`, `ncores`, `pb`, `...` | list | Core internal utility for applying a function over `.x` |
+| Function     | Main arguments                        | Output type | Description                                                 |
+|--------------|---------------------------------------|-------------|-------------------------------------------------------------|
+| `fmap()`     | `.x`, `.f`, `ncores`, `pb`            | list        | Map `.f` over elements of `.x`                              |
+| `fmapn()`    | `.l`, `.f`, `ncores`, `pb`            | list        | Map `.f` over multiple aligned lists                        |
+| `fmapr()`    | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f` over each row of a data frame (as named list)      |
+| `fmapc()`    | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f(column, name)` over each column                     |
+| `fmapg()`    | `.df`, `.f`, `by`, `ncores`, `pb`     | list        | Map `.f(group_df)` over groups defined by a column          |
+| `floop()`    | `.x`, `.f`, `...`, `ncores`, `pb`     | list        | General-purpose functional loop with side-effects           |
+| `fwalk()`    | `.x`, `.f`, `ncores`, `pb`            | NULL        | Map `.f` over `.x` for side-effects only (invisible return) |
+| `frepeat()`  | `times`, `expr`, `.x`, `ncores`, `pb` | list/vector | Repeat a call/expression multiple times                     |
+| `fcv()`      | `.splits`, `.f`, `ncores`, `pb`       | list        | Map `.f` over resampling splits from `rsample::vfold_cv()`  |
+| `freduce()`  | `.x`, `.f`, `...`                     | scalar/list | Reduce `.x` using a binary function `.f`                    |
+| `fcompose()` | any number of functions `f1, f2, ...` | function    | Compose multiple functions: `f1(f2(...(x)))`                |
+| `fapply()`   | `.x`, `.f`, `ncores`, `pb`, `...`     | list        | Core internal utility for applying a function over `.x`     |
 
 ## Syntax Equivalence
 
-| Task | `functionals` Example | `purrr` Example | Base R |
-|----|----|----|----|
-| Map square | `fmap(1:5, function(x) x^2)` | `map(1:5, function(x) x^2)` | `lapply(1:5, function(x) x^2)` |
-| Map over N arguments | `fmapn(list(1:3, 4:6, 7:9), function(x, y, z) x + y + z)` | `pmap(list(1:3, 4:6, 7:9), function(x, y, z) ...)` | `Map(function(x, y, z) ..., 1:3, 4:6, 7:9)` |
-| Map over data frame rows | `fmapr(df, function(row) row$a + row$b)` | `pmap(df[c("a", "b")], function(x, y) x + y)` | `apply(df, 1, function(row) ...)` |
-| Map over data frame cols | `fmapc(df, function(x, name) mean(x))` | `imap(df, function(x, name) mean(x))` | `lapply(df, mean)` |
-| Grouped map | `fmapg(df, f, by = "group")` | `map(split(df, df$group), f)` | `lapply(split(df, df$group), f)` |
-| General-purpose loop | `floop(1:3, function(x) cat(x))` | *(manual recursion)* | `for (x in 1:3) cat(x)` |
-| Parallel + progress | `fmap(x, f, ncores = 4, pb = TRUE)` | *(future_map(x, f))* with `progressr` | `parLapply(cl, x, f)` or `mclapply()` |
-| Repeat simulation | `frepeat(100, function() rnorm(1))` | *(manual loop)* | `replicate(100, rnorm(1))` |
-| Walk with side effects | `fwalk(letters, function(x) cat(x))` | `walk(letters, function(x) cat(x))` | `lapply(letters, cat)` |
-| Reduce | `` freduce(1:5, `+`) `` | `` reduce(1:5, `+`) `` | `` Reduce(`+`, 1:5) `` |
-| Compose functions | `fcompose(sqrt, abs)(-4)` | `compose(sqrt, abs)(-4)` | `(function(x) sqrt(abs(x)))(-4)` |
+| Task                     | `functionals` Example                                     | `purrr` Example                                    | Base R                                      |
+|--------------------------|-----------------------------------------------------------|----------------------------------------------------|---------------------------------------------|
+| Map square               | `fmap(1:5, function(x) x^2)`                              | `map(1:5, function(x) x^2)`                        | `lapply(1:5, function(x) x^2)`              |
+| Map over N arguments     | `fmapn(list(1:3, 4:6, 7:9), function(x, y, z) x + y + z)` | `pmap(list(1:3, 4:6, 7:9), function(x, y, z) ...)` | `Map(function(x, y, z) ..., 1:3, 4:6, 7:9)` |
+| Map over data frame rows | `fmapr(df, function(row) row$a + row$b)`                  | `pmap(df[c("a", "b")], function(x, y) x + y)`      | `apply(df, 1, function(row) ...)`           |
+| Map over data frame cols | `fmapc(df, function(x, name) mean(x))`                    | `imap(df, function(x, name) mean(x))`              | `lapply(df, mean)`                          |
+| Grouped map              | `fmapg(df, f, by = "group")`                              | `map(split(df, df$group), f)`                      | `lapply(split(df, df$group), f)`            |
+| General-purpose loop     | `floop(1:3, function(x) cat(x))`                          | *(manual recursion)*                               | `for (x in 1:3) cat(x)`                     |
+| Parallel + progress      | `fmap(x, f, ncores = 4, pb = TRUE)`                       | *(future_map(x, f))* with `progressr`              | `parLapply(cl, x, f)` or `mclapply()`       |
+| Repeat simulation        | `frepeat(100, function() rnorm(1))`                       | *(manual loop)*                                    | `replicate(100, rnorm(1))`                  |
+| Walk with side effects   | `fwalk(letters, function(x) cat(x))`                      | `walk(letters, function(x) cat(x))`                | `lapply(letters, cat)`                      |
+| Reduce                   | `` freduce(1:5, `+`) ``                                   | `` reduce(1:5, `+`) ``                             | `` Reduce(`+`, 1:5) ``                      |
+| Compose functions        | `fcompose(sqrt, abs)(-4)`                                 | `compose(sqrt, abs)(-4)`                           | `(function(x) sqrt(abs(x)))(-4)`            |
 
 ## Why no formula interface like `~ .x + .y`?
 
@@ -62,7 +62,7 @@ philosophy favors clarity and simplicity.
 
 ``` r
 # install.packages("functionals") # when available
-#remotes::install_github("ielabdisy/functionals")
+#remotes::install_github("ielbadisy/functionals")
 ```
 
 ## Examples
