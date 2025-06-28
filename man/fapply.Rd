@@ -4,28 +4,55 @@
 \alias{fapply}
 \title{Apply a function over a list or vector with optional parallelism and progress}
 \usage{
-fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = FALSE, ...)
+fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = TRUE, ...)
 }
 \arguments{
-\item{.x}{A list or atomic vector of elements to iterate over. If not a list, it will be coerced.}
+\item{.x}{A list or atomic vector.}
 
-\item{.f}{A function to apply to each element of `.x`. Can be a function or a string naming a function.}
+\item{.f}{Function to apply.}
 
-\item{ncores}{Integer. Number of CPU cores to use for parallel processing. Default is `1` (sequential).}
+\item{ncores}{Number of cores to use (default: 1 = sequential).}
 
-\item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
+\item{pb}{Show progress bar? (default: FALSE).}
 
-\item{cl}{Optional. A parallel backend to use. If `"future"`, uses `future::multisession`.
-If a cluster object is provided, falls back to `parallel::parLapply()` or `parLapplyLB()`.}
+\item{cl}{A cluster object (from parallel::makeCluster), or integer for core count.}
 
-\item{load_balancing}{Logical. If using a cluster backend, whether to use `parLapplyLB`.}
+\item{load_balancing}{Logical. Use `parLapplyLB` if `TRUE` (default: `FALSE`).}
 
 \item{...}{Additional arguments passed to `.f`.}
 }
 \value{
-A list of results obtained by applying `.f` to each element of `.x`.
+A list of results.
 }
 \description{
-Applies a function `.f` to each element of `.x`, using optional parallel computation
-and progress bar tracking. Uses batched `future_lapply()` for high-performance parallelism.
+A lightweight and fast version of `lapply()` with support for multicore (Unix) and snow-style
+clusters via `parallel`, with internal progress bar tracking and message suppression.
+}
+\examples{
+# Basic usage (sequential)
+fapply(1:5, sqrt)
+
+# With progress bar (sequential)
+fapply(1:5, function(x) Sys.sleep(0.1); x^2, pb = TRUE)
+
+# Multicore on Unix (if available)
+\dontrun{
+if (.Platform$OS.type != "windows") {
+  fapply(1:10, sqrt, ncores = 2)
+}
+}
+
+# With user-created cluster (portable across platforms)
+\dontrun{
+cl <- parallel::makeCluster(2)
+fapply(1:10, sqrt, cl = cl)
+parallel::stopCluster(cl)
+}
+
+# Heavy computation example with chunked parallelism
+\dontrun{
+heavy_fn <- function(x) { Sys.sleep(0.05); x^2 }
+fapply(1:20, heavy_fn, ncores = 2, pb = TRUE)
+}
+
 }
