@@ -1,27 +1,23 @@
 Package: functionals
 Type: Package
-Title: Functional programming with parallelism and progress track support
+Title: Functional Programming with Parallelism and Progress Tracking
 Version: 0.5.0
 Authors@R: 
     person("Imad", "EL BADISY", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
 Maintainer: Imad EL BADISY <elbadisyimad@gmail.com>
-Description: Provides functional tools such as `fmap()`, `fwalk()`, and `fapply()` 
+Description: Provides functional tools such as 'fmap()', 'fwalk()', and 'fapply()' 
     to iterate over vectors, data frames, or grouped data with optional parallelism 
-    and live progress tracking. This package offers seamless integration of side-effect and result-driven operations with support for reproducible
-    benchmarking and Monte Carlo workflows.
+    and real-time progress tracking. Designed for readable and reproducible workflows, 
+    including support for Monte Carlo simulations and benchmarking.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Imports:
-    future.apply
+    parallel
 Suggests: 
     testthat (>= 3.0.0),
-    furrr,
     bench,
-    rsample,
-    future
+    rsample
 Config/testthat/edition: 3
 RoxygenNote: 7.3.2
-URL: https://ielbadisy.github.io/funr
-BugReports: https://github.com/ielbadisy/funr/issues
-
+BugReports: https://github.com/ielbadisy/functionals/issues
