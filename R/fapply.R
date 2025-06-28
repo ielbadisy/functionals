@@ -51,9 +51,20 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = F
 
     # batch .x into ncores chunks
     Split <- split(.x, cut(seq_along(.x), breaks = ncores, labels = FALSE))
-    results <- future.apply::future_lapply(Split, function(chunk) {
-      lapply(chunk, .f, ...)
-    }, future.scheduling = 1)
+    if (pb) {
+      pb_bar <- funr_progress_bar(min = 0, max = length(Split))
+      on.exit(pb_bar$kill(), add = TRUE)
+
+      results <- future.apply::future_lapply(seq_along(Split), function(i) {
+        res <- lapply(Split[[i]], .f, ...)
+        pb_bar$up(i)
+        res
+      }, future.scheduling = 1)
+    } else {
+      results <- future.apply::future_lapply(Split, function(chunk) {
+        lapply(chunk, .f, ...)
+      }, future.scheduling = 1)
+    }
 
     return(unlist(results, recursive = FALSE))
   }
