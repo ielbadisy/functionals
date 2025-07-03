@@ -18,7 +18,7 @@
 #' fapply(1:5, sqrt)
 #'
 #' # With progress bar (sequential)
-#' fapply(1:5, function(x) Sys.sleep(0.1); x^2, pb = TRUE)
+#' fapply(1:5, function(x) { Sys.sleep(0.1); x^2 }, pb = TRUE)
 #'
 #' # Multicore on Unix (if available)
 #' \dontrun{
