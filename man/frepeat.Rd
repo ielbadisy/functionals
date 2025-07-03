@@ -39,7 +39,7 @@ in the parent environment. Supports parallel processing and optional simplificat
 }
 \note{
 If `expr` is passed as a function call (not a function or quoted expression),
-it will be evaluated immediately, not repeated. Use `function(...) \\{ ... \\}` or `quote(...)` instead..
+it will be evaluated immediately, not repeated. Use \code{function(...) \\{ ... \\}} or \code{quote(...)} instead.
 }
 \examples{
 # Repeat a pure function call
