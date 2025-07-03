@@ -10,13 +10,13 @@ navbar:
     - text: "Articles"
       href: articles/index.html
     - text: "GitHub"
-      href: https://github.com/ielbadisy/funr
+      href: https://github.com/ielbadisy/functionals
 
 home:
   title: "funr: Functional Mapping with Parallelism and Progress Bars"
 
 reference:
-  - title: "Mapping functions"
+  - title: "Mappers"
     contents:
       - fmap
       - fmapn
