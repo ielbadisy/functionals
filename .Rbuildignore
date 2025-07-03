@@ -3,3 +3,6 @@
 ^README\.Rmd$
 ^LICENSE\.md$
 ^codecov\.yml$
+^README.html$
+^_pkgdown.yml$
+^docs$

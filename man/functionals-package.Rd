@@ -13,8 +13,7 @@ and progress bars.
 \seealso{
 Useful links:
 \itemize{
-  \item \url{https://ielbadisy.github.io/funr}
-  \item Report bugs at \url{https://github.com/ielbadisy/funr/issues}
+  \item Report bugs at \url{https://github.com/ielbadisy/functionals/issues}
 }
 
 }
