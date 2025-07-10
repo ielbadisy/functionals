@@ -8,9 +8,7 @@ Maintainer: Imad EL BADISY <elbadisyimad@gmail.com>
 Description: Provides functional tools such as fmap(), fwalk(), and fapply() 
     to iterate over vectors, data frames, or grouped data with optional parallelism 
     and real-time progress tracking. Designed for readable and reproducible workflows, 
-    including support for Monte Carlo simulations and benchmarking. Inspired by the 
-    functional programming paradigm as popularized in Wickham (2019) 
-    <doi:10.1007/s11222-019-09856-2>.
+    including support for Monte Carlo simulations and benchmarking.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
