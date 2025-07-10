@@ -21,21 +21,21 @@
 #' fapply(1:5, function(x) { Sys.sleep(0.1); x^2 }, pb = TRUE)
 #'
 #' # Multicore on Unix (if available)
-#' \dontrun{
+#' \donttest{
 #' if (.Platform$OS.type != "windows") {
 #'   fapply(1:10, sqrt, ncores = 2)
 #' }
 #' }
 #'
 #' # With user-created cluster (portable across platforms)
-#' \dontrun{
+#' \donttest{
 #' cl <- parallel::makeCluster(2)
 #' fapply(1:10, sqrt, cl = cl)
 #' parallel::stopCluster(cl)
 #' }
 #'
 #' # Heavy computation example with chunked parallelism
-#' \dontrun{
+#' \donttest{
 #' heavy_fn <- function(x) { Sys.sleep(0.05); x^2 }
 #' fapply(1:20, heavy_fn, ncores = 2, pb = TRUE)
 #' }
@@ -56,7 +56,7 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
   # sequential fallback
   if (!use_parallel && is.null(cl)) {
     if (pb) {
-      pb_bar <- funr_progress_bar(min = 0, max = length(.x))
+      pb_bar <- functionals_progress_bar(min = 0, max = length(.x))
       on.exit(pb_bar$kill(), add = TRUE)
       out <- vector("list", length(.x))
       for (i in seq_along(.x)) {
@@ -75,7 +75,7 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
     if (pb) {
       Split <- splitpb(length(.x), length(cl), nout = 100)
       B <- length(Split)
-      pb_bar <- funr_progress_bar(min = 0, max = B)
+      pb_bar <- functionals_progress_bar(min = 0, max = B)
       on.exit(pb_bar$kill(), add = TRUE)
       rval <- vector("list", B)
       for (i in seq_len(B)) {
@@ -93,7 +93,7 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
     if (pb) {
       Split <- splitpb(length(.x), ncores, nout = 100)
       B <- length(Split)
-      pb_bar <- funr_progress_bar(min = 0, max = B)
+      pb_bar <- functionals_progress_bar(min = 0, max = B)
       on.exit(pb_bar$kill(), add = TRUE)
       rval <- vector("list", B)
       for (i in seq_len(B)) {
@@ -120,7 +120,7 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
   if (pb) {
     Split <- splitpb(length(.x), ncores, nout = 100)
     B <- length(Split)
-    pb_bar <- funr_progress_bar(min = 0, max = B)
+    pb_bar <- functionals_progress_bar(min = 0, max = B)
     on.exit(pb_bar$kill(), add = TRUE)
     rval <- vector("list", B)
     for (i in seq_len(B)) {

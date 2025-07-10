@@ -22,7 +22,7 @@
 #' })
 #'
 #' # With progress and parallel execution
-#' \dontrun{
+#' \donttest{
 #' fcv(cv_splits$splits, function(split) {
 #'   summary(analysis(split))
 #' }, ncores = 2, pb = TRUE)

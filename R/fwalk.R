@@ -16,7 +16,7 @@
 #' fwalk(1:3, print)
 #'
 #' # Simulate writing files in parallel
-#' \dontrun{
+#' \donttest{
 #' fwalk(1:3, function(i) {
 #'   cat(paste("Processing item", i, "\n"))
 #'   Sys.sleep(0.5)
