@@ -31,7 +31,7 @@ df <- data.frame(a = 1:3, b = 4:6)
 fmapc(df, function(x, name) list(mean = mean(x), var = var(x), name = name))
 
 # With progress and parallel execution
-\dontrun{
+\donttest{
 fmapc(df, function(x, name) mean(x), ncores = 2, pb = TRUE)
 }
 

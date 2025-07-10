@@ -31,7 +31,7 @@ Unlike `fwalk()`, it can return results or be used purely for side effects (like
 floop(1:3, function(i) i^2)
 
 # Side-effect only loop (like for-loop with cat)
-\dontrun{
+\donttest{
 floop(1:5, function(i) cat(" Processing", i, "\n"), pb = TRUE, .capture = FALSE)
 }
 

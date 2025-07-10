@@ -31,7 +31,7 @@ Each group is passed as a data frame to `.f`. Supports parallelism and optional 
 fmapg(iris, function(df) mean(df$Sepal.Length), by = "Species")
 
 # Group-wise model fitting with progress and parallelism
-\dontrun{
+\donttest{
 fmapg(mtcars, function(df) lm(mpg ~ wt, data = df), by = "cyl", ncores = 2, pb = TRUE)
 }
 

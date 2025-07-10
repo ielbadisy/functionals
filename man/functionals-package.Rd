@@ -4,7 +4,7 @@
 \name{functionals-package}
 \alias{functionals}
 \alias{functionals-package}
-\title{funr: Functional programming with parallelism in R}
+\title{functionals: Functional programming with parallelism and progress track in R}
 \description{
 This package provides a consistent and intuitive API for applying functions
 over lists, vectors, and data frames, with built-in support for parallelism

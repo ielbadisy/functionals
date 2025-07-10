@@ -36,21 +36,21 @@ fapply(1:5, sqrt)
 fapply(1:5, function(x) { Sys.sleep(0.1); x^2 }, pb = TRUE)
 
 # Multicore on Unix (if available)
-\dontrun{
+\donttest{
 if (.Platform$OS.type != "windows") {
   fapply(1:10, sqrt, ncores = 2)
 }
 }
 
 # With user-created cluster (portable across platforms)
-\dontrun{
+\donttest{
 cl <- parallel::makeCluster(2)
 fapply(1:10, sqrt, cl = cl)
 parallel::stopCluster(cl)
 }
 
 # Heavy computation example with chunked parallelism
-\dontrun{
+\donttest{
 heavy_fn <- function(x) { Sys.sleep(0.05); x^2 }
 fapply(1:20, heavy_fn, ncores = 2, pb = TRUE)
 }

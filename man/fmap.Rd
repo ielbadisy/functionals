@@ -34,8 +34,8 @@ fmap(x, slow_fn)
 fmap(x, slow_fn, pb = TRUE)
 
 # With parallel execution (non-Windows)
-\dontrun{
-fmap(x, slow_fn, ncores = 4, pb = TRUE)
+\donttest{
+fmap(x, slow_fn, ncores = 2, pb = TRUE)
 }
 
 # Benchmark against furrr
@@ -46,7 +46,7 @@ library(future)
 
 plan(multisession, workers = 8)
 bench::mark(
-  funr_fmap    = fmap(x, slow_fn, ncores = 8, pb = FALSE),
+  funr_fmap    = fmap(x, slow_fn, ncores = 2, pb = FALSE),
   furrr_future = furrr::future_map(x, slow_fn),
   iterations = 10
 )
