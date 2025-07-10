@@ -54,7 +54,7 @@ NULL
 #'
 #' @keywords internal
 #' @noRd
-funr_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
+functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
   start_time <- proc.time()[["elapsed"]]
   i <- min
   if (is.na(width)) width <- getOption("width")
