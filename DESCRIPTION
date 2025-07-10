@@ -5,10 +5,12 @@ Version: 0.5.0
 Authors@R: 
     person("Imad", "EL BADISY", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
 Maintainer: Imad EL BADISY <elbadisyimad@gmail.com>
-Description: Provides functional tools such as 'fmap()', 'fwalk()', and 'fapply()' 
+Description: Provides functional tools such as fmap(), fwalk(), and fapply() 
     to iterate over vectors, data frames, or grouped data with optional parallelism 
     and real-time progress tracking. Designed for readable and reproducible workflows, 
-    including support for Monte Carlo simulations and benchmarking.
+    including support for Monte Carlo simulations and benchmarking. Inspired by the 
+    functional programming paradigm as popularized in Wickham (2019) 
+    <doi:10.1007/s11222-019-09856-2>.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
