@@ -22,21 +22,9 @@
 #'
 #' # With parallel execution (non-Windows)
 #' \donttest{
-#' fmap(x, slow_fn, ncores = 2, pb = TRUE)
+#' if (.Platform$OS.type != "windows") {
+#'   fmap(x, slow_fn, ncores = 2, pb = TRUE)
 #' }
-#'
-#' # Benchmark against furrr
-#' \dontrun{
-#' library(furrr)
-#' library(bench)
-#' library(future)
-#'
-#' plan(multisession, workers = 8)
-#' bench::mark(
-#'   funr_fmap    = fmap(x, slow_fn, ncores = 2, pb = FALSE),
-#'   furrr_future = furrr::future_map(x, slow_fn),
-#'   iterations = 10
-#' )
 #' }
 #'
 #' @export
