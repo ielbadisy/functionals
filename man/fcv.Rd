@@ -25,20 +25,21 @@ Applies a user-defined function `.f` to each element of `.splits`, typically fro
 cross-validation objects such as `rsample::vfold_cv()`.
 }
 \examples{
-library(rsample)
-set.seed(123)
-cv_splits <- vfold_cv(mtcars, v = 5)
+if (requireNamespace("rsample", quietly = TRUE)) {
+  set.seed(123)
+  cv_splits <- rsample::vfold_cv(mtcars, v = 5)
 
-# Apply summary over training sets
-fcv(cv_splits$splits, function(split) {
-  summary(analysis(split))
-})
+  # Apply summary over training sets
+  fcv(cv_splits$splits, function(split) {
+    summary(rsample::analysis(split))
+  })
 
-# With progress and parallel execution
-\donttest{
-fcv(cv_splits$splits, function(split) {
-  summary(analysis(split))
-}, ncores = 2, pb = TRUE)
+  # With progress and parallel execution
+  \donttest{
+    fcv(cv_splits$splits, function(split) {
+      summary(rsample::analysis(split))
+    }, ncores = 2, pb = TRUE)
+  }
 }
 
 }
