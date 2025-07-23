@@ -61,8 +61,11 @@ philosophy favors clarity and simplicity.
 ## Installation
 
 ``` r
-# install.packages("functionals") # when available
-#remotes::install_github("ielbadisy/functionals")
+# from CRAN
+install.packages("functionals")
+
+# from github
+remotes::install_github("ielbadisy/functionals")
 ```
 
 ## Examples

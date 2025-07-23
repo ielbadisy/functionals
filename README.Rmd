@@ -73,9 +73,12 @@ We may consider adding tidy evaluation support (e.g., with quosures or `rlang::a
 
 ## Installation
 
-```{r}
-# install.packages("functionals") # when available
-#remotes::install_github("ielbadisy/functionals")
+```{r, eval=FALSE}
+# from CRAN
+install.packages("functionals")
+
+# from github
+remotes::install_github("ielbadisy/functionals")
 ```
 
 
