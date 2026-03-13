@@ -60,8 +60,19 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
       on.exit(pb_bar$kill(), add = TRUE)
       out <- vector("list", length(.x))
       for (i in seq_along(.x)) {
-        out[[i]] <- .f(.x[[i]], ...)
+        captured_messages <- character()
+        result <- withCallingHandlers(
+          capture.output(
+            out[[i]] <- .f(.x[[i]], ...),
+            type = "output"
+          ),
+          message = function(m) {
+            captured_messages <<- c(captured_messages, conditionMessage(m))
+            invokeRestart("muffleMessage")
+          }
+        )
         pb_bar$up(i)
+        pb_bar$emit(c(captured_messages, result))
       }
       return(out)
     } else {
