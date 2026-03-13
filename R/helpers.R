@@ -56,34 +56,61 @@ NULL
 #' @noRd
 functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
   start_time <- proc.time()[["elapsed"]]
+  last_draw <- -Inf
   i <- min
   if (is.na(width)) width <- getOption("width")
+
   get_time_str <- function(seconds) {
-    sec <- round(seconds %% 60)
-    minutes <- floor(seconds / 60) %% 60
-    hours <- floor(seconds / 3600)
-    sprintf("%02ih %02im %02is", hours, minutes, sec)
+    seconds <- max(0, round(seconds))
+    minutes <- seconds %/% 60
+    sec <- seconds %% 60
+    sprintf("%02d:%02d", minutes, sec)
   }
+
+  draw <- function(value, now) {
+    total <- max - min
+    percent <- if (total > 0) (value - min) / total else 1
+    percent <- max(0, min(1, percent))
+    completed <- value - min
+    total_steps <- max(total, 0)
+    elapsed <- now - start_time
+    eta <- if (percent > 0 && elapsed >= 3) elapsed * (1 - percent) / percent else NA
+    status <- sprintf("%3d%% %d/%d %s", round(percent * 100), completed, total_steps, get_time_str(elapsed))
+    if (!is.na(eta)) status <- sprintf("%s eta %s", status, get_time_str(eta))
+
+    bar_width <- max(10, min(30, width - nchar(status) - 6))
+    done <- floor(bar_width * percent)
+    left <- bar_width - done
+    cat(sprintf("\r[%s%s] %s", strrep(char, done), strrep(" ", left), status))
+    flush.console()
+    last_draw <<- now
+  }
+
   update <- function(value) {
     if (!is.finite(value) || value < min || value > max) return()
     i <<- value
-    elapsed <- proc.time()[["elapsed"]] - start_time
-    total <- max - min
-    percent <- (i - min) / total
-    remaining <- if (percent > 0) elapsed * (1 - percent) / percent else NA
-    bar_width <- width - 30
-    done <- floor(bar_width * percent)
-    left <- bar_width - done
-    cat(sprintf("\r |%s%s| %3d%% elapsed=%s, remaining~%s",
-                strrep(char, done), strrep(" ", left),
-                round(percent * 100),
-                get_time_str(elapsed),
-                if (!is.na(remaining)) get_time_str(remaining) else "..."))
-    flush.console()
+    now <- proc.time()[["elapsed"]]
+    is_final <- isTRUE(value >= max)
+    if ((now - last_draw) >= 0.1 || is_final) {
+      draw(value, now)
+    }
   }
+
+  clear <- function() {
+    cat("\r", strrep(" ", width), "\r", sep = "")
+  }
+
+  emit <- function(text) {
+    if (!length(text)) return()
+    clear()
+    cat(paste(text, collapse = "\n"))
+    if (!grepl("\n$", text[[length(text)]])) cat("\n")
+    draw(i, proc.time()[["elapsed"]])
+  }
+
   kill <- function() cat("\n")
   update(i)
-  list(up = update, kill = kill)
+  list(up = update, kill = kill, emit = emit, clear = clear)
 }
 
 
