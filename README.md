@@ -9,6 +9,11 @@ R’s functional tools with a consistent, minimal API for mapping,
 walking, reducing, cross-validating, and repeating computations across
 lists, data frames, and grouped data.
 
+As of `0.5.1`, progress reporting is completion-driven across
+sequential, multicore, and cluster-backed execution. When `pb = TRUE`,
+the bar advances as individual tasks finish rather than at internal
+chunk boundaries.
+
 ## Function Reference Table
 
 | Function     | Main arguments                        | Output type | Description                                                 |
@@ -122,6 +127,32 @@ compare_outputs("Element-wise: pbapply", x1, x5)
 #>  Element-wise: pbapply -> dentical
 ```
 
+### Parallel progress semantics
+
+``` r
+slow <- function(x) {
+  Sys.sleep(c(0.12, 0.24, 0.36, 0.48)[[x]])
+  x^2
+}
+
+fmap(1:4, slow, ncores = 2, pb = TRUE)
+#> [                              ]   0% 0/4 00:00[=======                       ]  25% 1/4 00:00[===============               ]  50% 2/4 00:00[======================        ]  75% 3/4 00:00[==============================] 100% 4/4 00:01
+#> [[1]]
+#> [1] 1
+#> 
+#> [[2]]
+#> [1] 4
+#> 
+#> [[3]]
+#> [1] 9
+#> 
+#> [[4]]
+#> [1] 16
+```
+
+The progress bar advances on each completed task, so intermediate counts
+reflect completed jobs rather than chunk totals.
+
 ## Multi-input map
 
 ``` r
@@ -228,10 +259,10 @@ cat("\nGeneral-purpose loop (side-effects):\n")
 #> 
 #> General-purpose loop (side-effects):
 floop(1:3, function(x) cat("floop says:", x, "\n"), pb = TRUE, .capture = FALSE)
-#>  |                                                  |   0% elapsed=00h 00m 00s, remaining~...floop says: 1 
-#>  |================                                  |  33% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 2 
-#>  |=================================                 |  67% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 3 
-#>  |==================================================| 100% elapsed=00h 00m 00s, remaining~00h 00m 00s
+#> [                              ]   0% 0/3 00:00                                                                                floop says: 1 
+#> [==========                    ]  33% 1/3 00:00                                                                                floop says: 2 
+#> [====================          ]  67% 2/3 00:00                                                                                floop says: 3 
+#> [==============================] 100% 3/3 00:00
 cat("for-loop equivalent:\n")
 #> for-loop equivalent:
 for (x in 1:3) cat("for says:", x, "\n")

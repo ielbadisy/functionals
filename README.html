@@ -609,6 +609,10 @@ programming in R with built-in support for parallelism and progress
 bars. It extends base R’s functional tools with a consistent, minimal
 API for mapping, walking, reducing, cross-validating, and repeating
 computations across lists, data frames, and grouped data.</p>
+<p>As of <code>0.5.1</code>, progress reporting is completion-driven
+across sequential, multicore, and cluster-backed execution. When
+<code>pb = TRUE</code>, the bar advances as individual tasks finish
+rather than at internal chunk boundaries.</p>
 <h2 id="function-reference-table">Function Reference Table</h2>
 <table>
 <thead>
@@ -855,133 +859,154 @@ current philosophy favors clarity and simplicity.</p>
 <span id="cb3-15"><a href="#cb3-15" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Element-wise: pbapply&quot;</span>, x1, x5)</span>
 <span id="cb3-16"><a href="#cb3-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
 <span id="cb3-17"><a href="#cb3-17" tabindex="-1"></a><span class="co">#&gt;  Element-wise: pbapply -&gt; dentical</span></span></code></pre></div>
+<h3 id="parallel-progress-semantics">Parallel progress semantics</h3>
+<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>slow <span class="ot">&lt;-</span> <span class="cf">function</span>(x) {</span>
+<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>  <span class="fu">Sys.sleep</span>(<span class="fu">c</span>(<span class="fl">0.12</span>, <span class="fl">0.24</span>, <span class="fl">0.36</span>, <span class="fl">0.48</span>)[[x]])</span>
+<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>  x<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>}</span>
+<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a></span>
+<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="fu">fmap</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>, slow, <span class="at">ncores =</span> <span class="dv">2</span>, <span class="at">pb =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt; [                              ]   0% 0/4 00:00[=======                       ]  25% 1/4 00:00[===============               ]  50% 2/4 00:00[======================        ]  75% 3/4 00:00[==============================] 100% 4/4 00:01</span></span>
+<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="co">#&gt; [[1]]</span></span>
+<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="co">#&gt; [[2]]</span></span>
+<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; [1] 4</span></span>
+<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-14"><a href="#cb4-14" tabindex="-1"></a><span class="co">#&gt; [[3]]</span></span>
+<span id="cb4-15"><a href="#cb4-15" tabindex="-1"></a><span class="co">#&gt; [1] 9</span></span>
+<span id="cb4-16"><a href="#cb4-16" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb4-17"><a href="#cb4-17" tabindex="-1"></a><span class="co">#&gt; [[4]]</span></span>
+<span id="cb4-18"><a href="#cb4-18" tabindex="-1"></a><span class="co">#&gt; [1] 16</span></span></code></pre></div>
+<p>The progress bar advances on each completed task, so intermediate
+counts reflect completed jobs rather than chunk totals.</p>
 <h2 id="multi-input-map">Multi-input map</h2>
-<div class="sourceCode" id="cb4"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb4-1"><a href="#cb4-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapn</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="cf">function</span>(x, y) x <span class="sc">+</span> y)</span>
-<span id="cb4-2"><a href="#cb4-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Map</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
-<span id="cb4-3"><a href="#cb4-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
-<span id="cb4-4"><a href="#cb4-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
-<span id="cb4-5"><a href="#cb4-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: base&quot;</span>, x1, x2)</span>
-<span id="cb4-6"><a href="#cb4-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-7"><a href="#cb4-7" tabindex="-1"></a><span class="co">#&gt;  Multi-input: base -&gt; dentical</span></span>
-<span id="cb4-8"><a href="#cb4-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: purrr&quot;</span>, x1, x3)</span>
-<span id="cb4-9"><a href="#cb4-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-10"><a href="#cb4-10" tabindex="-1"></a><span class="co">#&gt;  Multi-input: purrr -&gt; dentical</span></span>
-<span id="cb4-11"><a href="#cb4-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: furrr&quot;</span>, x1, x4)</span>
-<span id="cb4-12"><a href="#cb4-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb4-13"><a href="#cb4-13" tabindex="-1"></a><span class="co">#&gt;  Multi-input: furrr -&gt; dentical</span></span></code></pre></div>
-<h3 id="row-wise-map">Row-wise map</h3>
-<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapr</span>(mtcars, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
-<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>rowlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(mtcars)), <span class="cf">function</span>(i) <span class="fu">as.list</span>(mtcars[i, ]))</span>
-<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
-<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
-<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: base&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x2))</span>
+<div class="sourceCode" id="cb5"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb5-1"><a href="#cb5-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapn</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="cf">function</span>(x, y) x <span class="sc">+</span> y)</span>
+<span id="cb5-2"><a href="#cb5-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Map</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>)</span>
+<span id="cb5-3"><a href="#cb5-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
+<span id="cb5-4"><a href="#cb5-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_pmap</span>(<span class="fu">list</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="dv">4</span><span class="sc">:</span><span class="dv">6</span>), <span class="sc">~</span> ..<span class="dv">1</span> <span class="sc">+</span> ..<span class="dv">2</span>)</span>
+<span id="cb5-5"><a href="#cb5-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: base&quot;</span>, x1, x2)</span>
 <span id="cb5-6"><a href="#cb5-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;  Row-wise: base -&gt; dentical</span></span>
-<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: purrr&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x3))</span>
+<span id="cb5-7"><a href="#cb5-7" tabindex="-1"></a><span class="co">#&gt;  Multi-input: base -&gt; dentical</span></span>
+<span id="cb5-8"><a href="#cb5-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: purrr&quot;</span>, x1, x3)</span>
 <span id="cb5-9"><a href="#cb5-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;  Row-wise: purrr -&gt; dentical</span></span></code></pre></div>
-<h3 id="column-wise-map">Column-wise map</h3>
-<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapc</span>(mtcars, <span class="cf">function</span>(col, name) <span class="fu">mean</span>(col))</span>
-<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(mtcars, mean)</span>
-<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
-<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
-<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: base&quot;</span>, x1, <span class="fu">as.list</span>(x2))</span>
+<span id="cb5-10"><a href="#cb5-10" tabindex="-1"></a><span class="co">#&gt;  Multi-input: purrr -&gt; dentical</span></span>
+<span id="cb5-11"><a href="#cb5-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Multi-input: furrr&quot;</span>, x1, x4)</span>
+<span id="cb5-12"><a href="#cb5-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb5-13"><a href="#cb5-13" tabindex="-1"></a><span class="co">#&gt;  Multi-input: furrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="row-wise-map">Row-wise map</h3>
+<div class="sourceCode" id="cb6"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb6-1"><a href="#cb6-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapr</span>(mtcars, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb6-2"><a href="#cb6-2" tabindex="-1"></a>rowlist <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">seq_len</span>(<span class="fu">nrow</span>(mtcars)), <span class="cf">function</span>(i) <span class="fu">as.list</span>(mtcars[i, ]))</span>
+<span id="cb6-3"><a href="#cb6-3" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb6-4"><a href="#cb6-4" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(rowlist, <span class="cf">function</span>(row) row<span class="sc">$</span>mpg <span class="sc">+</span> row<span class="sc">$</span>cyl)</span>
+<span id="cb6-5"><a href="#cb6-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: base&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x2))</span>
 <span id="cb6-6"><a href="#cb6-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;  Column-wise: base -&gt; dentical</span></span>
-<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb6-7"><a href="#cb6-7" tabindex="-1"></a><span class="co">#&gt;  Row-wise: base -&gt; dentical</span></span>
+<span id="cb6-8"><a href="#cb6-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Row-wise: purrr&quot;</span>, <span class="fu">as_vec</span>(x1), <span class="fu">as_vec</span>(x3))</span>
 <span id="cb6-9"><a href="#cb6-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;  Column-wise: purrr -&gt; dentical</span></span>
-<span id="cb6-11"><a href="#cb6-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: furrr&quot;</span>, x1, x4)</span>
-<span id="cb6-12"><a href="#cb6-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb6-13"><a href="#cb6-13" tabindex="-1"></a><span class="co">#&gt;  Column-wise: furrr -&gt; dentical</span></span></code></pre></div>
-<h3 id="group-wise-map">Group-wise map</h3>
-<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapg</span>(iris, <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]), <span class="at">by =</span> <span class="st">&quot;Species&quot;</span>)</span>
-<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
-<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
-<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
-<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: base&quot;</span>, x1, x2)</span>
+<span id="cb6-10"><a href="#cb6-10" tabindex="-1"></a><span class="co">#&gt;  Row-wise: purrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="column-wise-map">Column-wise map</h3>
+<div class="sourceCode" id="cb7"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb7-1"><a href="#cb7-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapc</span>(mtcars, <span class="cf">function</span>(col, name) <span class="fu">mean</span>(col))</span>
+<span id="cb7-2"><a href="#cb7-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">sapply</span>(mtcars, mean)</span>
+<span id="cb7-3"><a href="#cb7-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
+<span id="cb7-4"><a href="#cb7-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_imap</span>(mtcars, <span class="sc">~</span> <span class="fu">mean</span>(.x))</span>
+<span id="cb7-5"><a href="#cb7-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: base&quot;</span>, x1, <span class="fu">as.list</span>(x2))</span>
 <span id="cb7-6"><a href="#cb7-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;  Group-wise: base -&gt; dentical</span></span>
-<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb7-7"><a href="#cb7-7" tabindex="-1"></a><span class="co">#&gt;  Column-wise: base -&gt; dentical</span></span>
+<span id="cb7-8"><a href="#cb7-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: purrr&quot;</span>, x1, x3)</span>
 <span id="cb7-9"><a href="#cb7-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;  Group-wise: purrr -&gt; dentical</span></span>
-<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: furrr&quot;</span>, x1, x4)</span>
+<span id="cb7-10"><a href="#cb7-10" tabindex="-1"></a><span class="co">#&gt;  Column-wise: purrr -&gt; dentical</span></span>
+<span id="cb7-11"><a href="#cb7-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Column-wise: furrr&quot;</span>, x1, x4)</span>
 <span id="cb7-12"><a href="#cb7-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;  Group-wise: furrr -&gt; dentical</span></span></code></pre></div>
+<span id="cb7-13"><a href="#cb7-13" tabindex="-1"></a><span class="co">#&gt;  Column-wise: furrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="group-wise-map">Group-wise map</h3>
+<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fmapg</span>(iris, <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]), <span class="at">by =</span> <span class="st">&quot;Species&quot;</span>)</span>
+<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="cf">function</span>(df) <span class="fu">colMeans</span>(df[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a>x4 <span class="ot">&lt;-</span> <span class="fu">future_map</span>(<span class="fu">split</span>(iris, iris<span class="sc">$</span>Species), <span class="sc">~</span> <span class="fu">colMeans</span>(.x[<span class="dv">1</span><span class="sc">:</span><span class="dv">4</span>]))</span>
+<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: base&quot;</span>, x1, x2)</span>
+<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt;  Group-wise: base -&gt; dentical</span></span>
+<span id="cb8-8"><a href="#cb8-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: purrr&quot;</span>, x1, x3)</span>
+<span id="cb8-9"><a href="#cb8-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-10"><a href="#cb8-10" tabindex="-1"></a><span class="co">#&gt;  Group-wise: purrr -&gt; dentical</span></span>
+<span id="cb8-11"><a href="#cb8-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Group-wise: furrr&quot;</span>, x1, x4)</span>
+<span id="cb8-12"><a href="#cb8-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb8-13"><a href="#cb8-13" tabindex="-1"></a><span class="co">#&gt;  Group-wise: furrr -&gt; dentical</span></span></code></pre></div>
 <h3 id="side-effect-map">Side-effect map</h3>
-<div class="sourceCode" id="cb8"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb8-1"><a href="#cb8-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Side-effects:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb8-2"><a href="#cb8-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb8-3"><a href="#cb8-3" tabindex="-1"></a><span class="co">#&gt; Side-effects:</span></span>
-<span id="cb8-4"><a href="#cb8-4" tabindex="-1"></a><span class="fu">fwalk</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, print)</span>
-<span id="cb8-5"><a href="#cb8-5" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
-<span id="cb8-6"><a href="#cb8-6" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
-<span id="cb8-7"><a href="#cb8-7" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Side-effects:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a><span class="co">#&gt; Side-effects:</span></span>
+<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a><span class="fu">fwalk</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, print)</span>
+<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a><span class="co">#&gt; [1] 1</span></span>
+<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a><span class="co">#&gt; [1] 2</span></span>
+<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a><span class="co">#&gt; [1] 3</span></span></code></pre></div>
 <h3 id="general-purpose-loop-with-return-values">General-purpose loop
 with return values</h3>
-<div class="sourceCode" id="cb9"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb9-1"><a href="#cb9-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>, <span class="at">.capture =</span> <span class="cn">TRUE</span>)</span>
-<span id="cb9-2"><a href="#cb9-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
-<span id="cb9-3"><a href="#cb9-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> {</span>
-<span id="cb9-4"><a href="#cb9-4" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
-<span id="cb9-5"><a href="#cb9-5" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) out[[i]] <span class="ot">&lt;-</span> i<span class="sc">^</span><span class="dv">2</span></span>
-<span id="cb9-6"><a href="#cb9-6" tabindex="-1"></a>  out</span>
-<span id="cb9-7"><a href="#cb9-7" tabindex="-1"></a>}</span>
-<span id="cb9-8"><a href="#cb9-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs lapply()&quot;</span>, x1, x2)</span>
-<span id="cb9-9"><a href="#cb9-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-10"><a href="#cb9-10" tabindex="-1"></a><span class="co">#&gt;  floop() vs lapply() -&gt; dentical</span></span>
-<span id="cb9-11"><a href="#cb9-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs for()&quot;</span>, x1, x3)</span>
-<span id="cb9-12"><a href="#cb9-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb9-13"><a href="#cb9-13" tabindex="-1"></a><span class="co">#&gt;  floop() vs for() -&gt; dentical</span></span></code></pre></div>
+<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>, <span class="at">.capture =</span> <span class="cn">TRUE</span>)</span>
+<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="cf">function</span>(x) x<span class="sc">^</span><span class="dv">2</span>)</span>
+<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> {</span>
+<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a>  out <span class="ot">&lt;-</span> <span class="fu">list</span>()</span>
+<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a>  <span class="cf">for</span> (i <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>) out[[i]] <span class="ot">&lt;-</span> i<span class="sc">^</span><span class="dv">2</span></span>
+<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a>  out</span>
+<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a>}</span>
+<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs lapply()&quot;</span>, x1, x2)</span>
+<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt;  floop() vs lapply() -&gt; dentical</span></span>
+<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;floop() vs for()&quot;</span>, x1, x3)</span>
+<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt;  floop() vs for() -&gt; dentical</span></span></code></pre></div>
 <h3 id="general-purpose-loop-side-effect-only">General-purpose loop
 (side-effect only)</h3>
-<div class="sourceCode" id="cb10"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb10-1"><a href="#cb10-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">General-purpose loop (side-effects):</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-2"><a href="#cb10-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb10-3"><a href="#cb10-3" tabindex="-1"></a><span class="co">#&gt; General-purpose loop (side-effects):</span></span>
-<span id="cb10-4"><a href="#cb10-4" tabindex="-1"></a><span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) <span class="fu">cat</span>(<span class="st">&quot;floop says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), <span class="at">pb =</span> <span class="cn">TRUE</span>, <span class="at">.capture =</span> <span class="cn">FALSE</span>)</span>
-<span id="cb10-5"><a href="#cb10-5" tabindex="-1"></a><span class="co">#&gt;  |                                                  |   0% elapsed=00h 00m 00s, remaining~...floop says: 1 </span></span>
-<span id="cb10-6"><a href="#cb10-6" tabindex="-1"></a><span class="co">#&gt;  |================                                  |  33% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 2 </span></span>
-<span id="cb10-7"><a href="#cb10-7" tabindex="-1"></a><span class="co">#&gt;  |=================================                 |  67% elapsed=00h 00m 00s, remaining~00h 00m 00sfloop says: 3 </span></span>
-<span id="cb10-8"><a href="#cb10-8" tabindex="-1"></a><span class="co">#&gt;  |==================================================| 100% elapsed=00h 00m 00s, remaining~00h 00m 00s</span></span>
-<span id="cb10-9"><a href="#cb10-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;for-loop equivalent:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-10"><a href="#cb10-10" tabindex="-1"></a><span class="co">#&gt; for-loop equivalent:</span></span>
-<span id="cb10-11"><a href="#cb10-11" tabindex="-1"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="fu">cat</span>(<span class="st">&quot;for says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb10-12"><a href="#cb10-12" tabindex="-1"></a><span class="co">#&gt; for says: 1 </span></span>
-<span id="cb10-13"><a href="#cb10-13" tabindex="-1"></a><span class="co">#&gt; for says: 2 </span></span>
-<span id="cb10-14"><a href="#cb10-14" tabindex="-1"></a><span class="co">#&gt; for says: 3</span></span></code></pre></div>
+<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">General-purpose loop (side-effects):</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a><span class="co">#&gt; General-purpose loop (side-effects):</span></span>
+<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a><span class="fu">floop</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>, <span class="cf">function</span>(x) <span class="fu">cat</span>(<span class="st">&quot;floop says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>), <span class="at">pb =</span> <span class="cn">TRUE</span>, <span class="at">.capture =</span> <span class="cn">FALSE</span>)</span>
+<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="co">#&gt; [                              ]   0% 0/3 00:00                                                                                floop says: 1 </span></span>
+<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; [==========                    ]  33% 1/3 00:00                                                                                floop says: 2 </span></span>
+<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt; [====================          ]  67% 2/3 00:00                                                                                floop says: 3 </span></span>
+<span id="cb11-8"><a href="#cb11-8" tabindex="-1"></a><span class="co">#&gt; [==============================] 100% 3/3 00:00</span></span>
+<span id="cb11-9"><a href="#cb11-9" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;for-loop equivalent:</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-10"><a href="#cb11-10" tabindex="-1"></a><span class="co">#&gt; for-loop equivalent:</span></span>
+<span id="cb11-11"><a href="#cb11-11" tabindex="-1"></a><span class="cf">for</span> (x <span class="cf">in</span> <span class="dv">1</span><span class="sc">:</span><span class="dv">3</span>) <span class="fu">cat</span>(<span class="st">&quot;for says:&quot;</span>, x, <span class="st">&quot;</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
+<span id="cb11-12"><a href="#cb11-12" tabindex="-1"></a><span class="co">#&gt; for says: 1 </span></span>
+<span id="cb11-13"><a href="#cb11-13" tabindex="-1"></a><span class="co">#&gt; for says: 2 </span></span>
+<span id="cb11-14"><a href="#cb11-14" tabindex="-1"></a><span class="co">#&gt; for says: 3</span></span></code></pre></div>
 <h3 id="cross-validation">Cross-validation</h3>
-<div class="sourceCode" id="cb11"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb11-1"><a href="#cb11-1" tabindex="-1"></a>splits <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(iris, <span class="at">v =</span> <span class="dv">3</span>)<span class="sc">$</span>splits</span>
-<span id="cb11-2"><a href="#cb11-2" tabindex="-1"></a>fit_model <span class="ot">&lt;-</span> <span class="cf">function</span>(split) <span class="fu">mean</span>(<span class="fu">analysis</span>(split)<span class="sc">$</span>Sepal.Length)</span>
-<span id="cb11-3"><a href="#cb11-3" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcv</span>(splits, fit_model)</span>
-<span id="cb11-4"><a href="#cb11-4" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(splits, fit_model)</span>
-<span id="cb11-5"><a href="#cb11-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;CV map: base&quot;</span>, x1, x2)</span>
-<span id="cb11-6"><a href="#cb11-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb11-7"><a href="#cb11-7" tabindex="-1"></a><span class="co">#&gt;  CV map: base -&gt; dentical</span></span></code></pre></div>
+<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>splits <span class="ot">&lt;-</span> <span class="fu">vfold_cv</span>(iris, <span class="at">v =</span> <span class="dv">3</span>)<span class="sc">$</span>splits</span>
+<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>fit_model <span class="ot">&lt;-</span> <span class="cf">function</span>(split) <span class="fu">mean</span>(<span class="fu">analysis</span>(split)<span class="sc">$</span>Sepal.Length)</span>
+<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcv</span>(splits, fit_model)</span>
+<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">lapply</span>(splits, fit_model)</span>
+<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;CV map: base&quot;</span>, x1, x2)</span>
+<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb12-7"><a href="#cb12-7" tabindex="-1"></a><span class="co">#&gt;  CV map: base -&gt; dentical</span></span></code></pre></div>
 <h3 id="repeat-simulation">Repeat simulation</h3>
-<div class="sourceCode" id="cb12"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb12-1"><a href="#cb12-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">frepeat</span>(<span class="at">times =</span> <span class="dv">10</span>, <span class="at">expr =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>))</span>
-<span id="cb12-2"><a href="#cb12-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">replicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
-<span id="cb12-3"><a href="#cb12-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">pbreplicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
-<span id="cb12-4"><a href="#cb12-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Repeat: Results not comparable (randomized output)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
-<span id="cb12-5"><a href="#cb12-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb12-6"><a href="#cb12-6" tabindex="-1"></a><span class="co">#&gt; Repeat: Results not comparable (randomized output)</span></span></code></pre></div>
-<h3 id="reduce">Reduce</h3>
-<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">freduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
-<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
-<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
-<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: base&quot;</span>, x1, x2)</span>
+<div class="sourceCode" id="cb13"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb13-1"><a href="#cb13-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">frepeat</span>(<span class="at">times =</span> <span class="dv">10</span>, <span class="at">expr =</span> <span class="fu">rnorm</span>(<span class="dv">1</span>))</span>
+<span id="cb13-2"><a href="#cb13-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">replicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
+<span id="cb13-3"><a href="#cb13-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">as.list</span>(<span class="fu">pbreplicate</span>(<span class="dv">10</span>, <span class="fu">rnorm</span>(<span class="dv">1</span>)))</span>
+<span id="cb13-4"><a href="#cb13-4" tabindex="-1"></a><span class="fu">cat</span>(<span class="st">&quot;</span><span class="sc">\n</span><span class="st">Repeat: Results not comparable (randomized output)</span><span class="sc">\n</span><span class="st">&quot;</span>)</span>
 <span id="cb13-5"><a href="#cb13-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt;  Reduce: base -&gt; dentical</span></span>
-<span id="cb13-7"><a href="#cb13-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: purrr&quot;</span>, x1, x3)</span>
-<span id="cb13-8"><a href="#cb13-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb13-9"><a href="#cb13-9" tabindex="-1"></a><span class="co">#&gt;  Reduce: purrr -&gt; dentical</span></span></code></pre></div>
-<h3 id="compose">Compose</h3>
-<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcompose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
-<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> (<span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">abs</span>(x)))(<span class="sc">-</span><span class="dv">4</span>)</span>
-<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">compose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
-<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: base&quot;</span>, x1, x2)</span>
+<span id="cb13-6"><a href="#cb13-6" tabindex="-1"></a><span class="co">#&gt; Repeat: Results not comparable (randomized output)</span></span></code></pre></div>
+<h3 id="reduce">Reduce</h3>
+<div class="sourceCode" id="cb14"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb14-1"><a href="#cb14-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">freduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
+<span id="cb14-2"><a href="#cb14-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> <span class="fu">Reduce</span>(<span class="st">`</span><span class="at">+</span><span class="st">`</span>, <span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>)</span>
+<span id="cb14-3"><a href="#cb14-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">reduce</span>(<span class="dv">1</span><span class="sc">:</span><span class="dv">5</span>, <span class="st">`</span><span class="at">+</span><span class="st">`</span>)</span>
+<span id="cb14-4"><a href="#cb14-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: base&quot;</span>, x1, x2)</span>
 <span id="cb14-5"><a href="#cb14-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt;  Compose: base -&gt; dentical</span></span>
-<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: purrr&quot;</span>, x1, x3)</span>
+<span id="cb14-6"><a href="#cb14-6" tabindex="-1"></a><span class="co">#&gt;  Reduce: base -&gt; dentical</span></span>
+<span id="cb14-7"><a href="#cb14-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Reduce: purrr&quot;</span>, x1, x3)</span>
 <span id="cb14-8"><a href="#cb14-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
-<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;  Compose: purrr -&gt; dentical</span></span></code></pre></div>
+<span id="cb14-9"><a href="#cb14-9" tabindex="-1"></a><span class="co">#&gt;  Reduce: purrr -&gt; dentical</span></span></code></pre></div>
+<h3 id="compose">Compose</h3>
+<div class="sourceCode" id="cb15"><pre class="sourceCode r"><code class="sourceCode r"><span id="cb15-1"><a href="#cb15-1" tabindex="-1"></a>x1 <span class="ot">&lt;-</span> <span class="fu">fcompose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb15-2"><a href="#cb15-2" tabindex="-1"></a>x2 <span class="ot">&lt;-</span> (<span class="cf">function</span>(x) <span class="fu">sqrt</span>(<span class="fu">abs</span>(x)))(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb15-3"><a href="#cb15-3" tabindex="-1"></a>x3 <span class="ot">&lt;-</span> <span class="fu">compose</span>(sqrt, abs)(<span class="sc">-</span><span class="dv">4</span>)</span>
+<span id="cb15-4"><a href="#cb15-4" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: base&quot;</span>, x1, x2)</span>
+<span id="cb15-5"><a href="#cb15-5" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-6"><a href="#cb15-6" tabindex="-1"></a><span class="co">#&gt;  Compose: base -&gt; dentical</span></span>
+<span id="cb15-7"><a href="#cb15-7" tabindex="-1"></a><span class="fu">compare_outputs</span>(<span class="st">&quot;Compose: purrr&quot;</span>, x1, x3)</span>
+<span id="cb15-8"><a href="#cb15-8" tabindex="-1"></a><span class="co">#&gt; </span></span>
+<span id="cb15-9"><a href="#cb15-9" tabindex="-1"></a><span class="co">#&gt;  Compose: purrr -&gt; dentical</span></span></code></pre></div>
 
 </body>
 </html>

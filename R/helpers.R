@@ -1,4 +1,4 @@
-#' @importFrom utils flush.console
+#' @importFrom utils flush.console capture.output
 NULL
 
 
@@ -100,12 +100,12 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
     cat("\r", strrep(" ", width), "\r", sep = "")
   }
 
-  emit <- function(text) {
+  emit <- function(text, redraw = TRUE) {
     if (!length(text)) return()
     clear()
     cat(paste(text, collapse = "\n"))
     if (!grepl("\n$", text[[length(text)]])) cat("\n")
-    draw(i, proc.time()[["elapsed"]])
+    if (redraw) draw(i, proc.time()[["elapsed"]])
   }
 
   kill <- function() cat("\n")
@@ -133,4 +133,109 @@ splitpb <- function(nx, ncl, nout = 100) {
   k <- max(1L, ceiling(ceiling(nx / ncl) / nout))
   g <- 1L + (i - 1L) %/% as.integer(ncl * k)
   structure(split(i, g), names = NULL)
+}
+
+
+#' Unpack a task result emitted by a worker wrapper
+#'
+#' @keywords internal
+#' @noRd
+.functionals_unwrap_task_result <- function(result) {
+  if (is.list(result) && identical(result$ok, TRUE)) {
+    return(result$value)
+  }
+
+  if (is.list(result) && identical(result$ok, FALSE)) {
+    stop(result$message, call. = FALSE)
+  }
+
+  if (inherits(result, "try-error")) {
+    stop(as.character(result), call. = FALSE)
+  }
+
+  result
+}
+
+
+#' Execute tasks on a cluster with exact completion-driven progress
+#'
+#' @keywords internal
+#' @noRd
+.functionals_cluster_queue <- function(cl, .x, task_fun, pb_bar = NULL) {
+  if (!length(.x)) return(list())
+
+  parallel_ns <- asNamespace("parallel")
+  send_call <- get("sendCall", envir = parallel_ns)
+  recv_one_result <- get("recvOneResult", envir = parallel_ns)
+
+  out <- vector("list", length(.x))
+  next_idx <- 1L
+  n_workers <- min(length(cl), length(.x))
+
+  for (worker_idx in seq_len(n_workers)) {
+    send_call(cl[[worker_idx]], task_fun, list(.x[[next_idx]]), tag = next_idx)
+    next_idx <- next_idx + 1L
+  }
+
+  completed <- 0L
+  while (completed < length(.x)) {
+    res <- recv_one_result(cl)
+    out[[res$tag]] <- .functionals_unwrap_task_result(res$value)
+    completed <- completed + 1L
+    if (!is.null(pb_bar)) pb_bar$up(completed)
+
+    if (next_idx <= length(.x)) {
+      send_call(cl[[res$node]], task_fun, list(.x[[next_idx]]), tag = next_idx)
+      next_idx <- next_idx + 1L
+    }
+  }
+
+  out
+}
+
+
+#' Execute tasks with mcparallel and exact completion-driven progress
+#'
+#' @keywords internal
+#' @noRd
+.functionals_multicore_queue <- function(.x, task_fun, ncores, pb_bar = NULL) {
+  if (!length(.x)) return(list())
+
+  parallel_ns <- asNamespace("parallel")
+  cleanup <- get("cleanup", envir = parallel_ns)
+  on.exit(cleanup(kill = TRUE, detach = FALSE), add = TRUE)
+
+  out <- vector("list", length(.x))
+  jobs <- list()
+  next_idx <- 1L
+  max_jobs <- min(ncores, length(.x))
+
+  launch_job <- function(idx) {
+    parallel::mcparallel(task_fun(.x[[idx]]), name = as.character(idx), silent = TRUE)
+  }
+
+  while (length(jobs) < max_jobs && next_idx <= length(.x)) {
+    jobs[[as.character(next_idx)]] <- launch_job(next_idx)
+    next_idx <- next_idx + 1L
+  }
+
+  completed <- 0L
+  while (completed < length(.x)) {
+    res <- parallel::mccollect(jobs, wait = FALSE, timeout = 0.1)
+    if (is.null(res)) next
+
+    for (name in names(res)) {
+      out[[as.integer(name)]] <- .functionals_unwrap_task_result(res[[name]])
+      jobs[[name]] <- NULL
+      completed <- completed + 1L
+      if (!is.null(pb_bar)) pb_bar$up(completed)
+
+      if (next_idx <= length(.x)) {
+        jobs[[as.character(next_idx)]] <- launch_job(next_idx)
+        next_idx <- next_idx + 1L
+      }
+    }
+  }
+
+  out
 }

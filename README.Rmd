@@ -19,6 +19,10 @@ knitr::opts_chunk$set(
 
 `functionals` is a lightweight toolkit for functional programming in R with built-in support for parallelism and progress bars. It extends base R's functional tools with a consistent, minimal API for mapping, walking, reducing, cross-validating, and repeating computations across lists, data frames, and grouped data.
 
+As of `0.5.1`, progress reporting is completion-driven across sequential,
+multicore, and cluster-backed execution. When `pb = TRUE`, the bar advances as
+individual tasks finish rather than at internal chunk boundaries.
+
 
 ## Function Reference Table
 
@@ -119,6 +123,21 @@ compare_outputs("Element-wise: purrr", x1, x3)
 compare_outputs("Element-wise: furrr", x1, x4)
 compare_outputs("Element-wise: pbapply", x1, x5)
 ```
+
+
+### Parallel progress semantics
+
+```{r}
+slow <- function(x) {
+  Sys.sleep(c(0.12, 0.24, 0.36, 0.48)[[x]])
+  x^2
+}
+
+fmap(1:4, slow, ncores = 2, pb = TRUE)
+```
+
+The progress bar advances on each completed task, so intermediate counts reflect
+completed jobs rather than chunk totals.
 
 
 ## Multi-input map

@@ -1,14 +1,16 @@
 Package: functionals
 Type: Package
 Title: Functional Programming with Parallelism and Progress Tracking
-Version: 0.5.0
+Version: 0.5.1
 Authors@R: 
     person("Imad", "EL BADISY", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
 Maintainer: Imad EL BADISY <elbadisyimad@gmail.com>
 Description: Provides functional tools such as fmap(), fwalk(), and fapply() 
     to iterate over vectors, data frames, or grouped data with optional parallelism 
-    and real-time progress tracking. Designed for readable and reproducible workflows, 
-    including support for Monte Carlo simulations and benchmarking.
+    and real-time progress tracking. Progress updates now reflect completed tasks
+    across sequential, multicore, and cluster-backed execution. Designed for
+    readable and reproducible workflows, including support for Monte Carlo
+    simulations and benchmarking.
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true

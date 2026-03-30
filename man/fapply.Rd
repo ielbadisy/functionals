@@ -13,7 +13,8 @@ fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = TRUE, ...)
 
 \item{ncores}{Number of cores to use (default: 1 = sequential).}
 
-\item{pb}{Show progress bar? (default: FALSE).}
+\item{pb}{Show progress bar? (default: FALSE). When enabled, progress is driven by
+completed tasks. In parallel mode, updates occur as workers return results.}
 
 \item{cl}{A cluster object (from parallel::makeCluster), or integer for core count.}
 
@@ -27,6 +28,8 @@ A list of results.
 \description{
 A lightweight and fast version of `lapply()` with support for multicore (Unix) and snow-style
 clusters via `parallel`, with internal progress bar tracking and message suppression.
+When `pb = TRUE`, progress advances when individual tasks complete, including in the
+parallel paths, so counts reflect completed jobs rather than internal chunk boundaries.
 }
 \examples{
 # Basic usage (sequential)
@@ -49,7 +52,7 @@ fapply(1:10, sqrt, cl = cl)
 parallel::stopCluster(cl)
 }
 
-# Heavy computation example with chunked parallelism
+# Heavy computation example with exact completion-driven progress
 \donttest{
 heavy_fn <- function(x) { Sys.sleep(0.05); x^2 }
 fapply(1:20, heavy_fn, ncores = 2, pb = TRUE)

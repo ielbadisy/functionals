@@ -2,11 +2,14 @@
 #'
 #' A lightweight and fast version of `lapply()` with support for multicore (Unix) and snow-style
 #' clusters via `parallel`, with internal progress bar tracking and message suppression.
+#' When `pb = TRUE`, progress advances when individual tasks complete, including in the
+#' parallel paths, so counts reflect completed jobs rather than internal chunk boundaries.
 #'
 #' @param .x A list or atomic vector.
 #' @param .f Function to apply.
 #' @param ncores Number of cores to use (default: 1 = sequential).
-#' @param pb Show progress bar? (default: FALSE).
+#' @param pb Show progress bar? (default: FALSE). When enabled, progress is driven by
+#' completed tasks. In parallel mode, updates occur as workers return results.
 #' @param cl A cluster object (from parallel::makeCluster), or integer for core count.
 #' @param load_balancing Logical. Use `parLapplyLB` if `TRUE` (default: `FALSE`).
 #' @param ... Additional arguments passed to `.f`.
@@ -34,7 +37,7 @@
 #' parallel::stopCluster(cl)
 #' }
 #'
-#' # Heavy computation example with chunked parallelism
+#' # Heavy computation example with exact completion-driven progress
 #' \donttest{
 #' heavy_fn <- function(x) { Sys.sleep(0.05); x^2 }
 #' fapply(1:20, heavy_fn, ncores = 2, pb = TRUE)
@@ -71,8 +74,18 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
             invokeRestart("muffleMessage")
           }
         )
-        pb_bar$up(i)
-        pb_bar$emit(c(captured_messages, result))
+        emitted_text <- c(captured_messages, result)
+        if (length(emitted_text)) {
+          if (i < length(.x)) {
+            pb_bar$up(i)
+            pb_bar$emit(emitted_text)
+          } else {
+            pb_bar$emit(emitted_text, redraw = FALSE)
+            pb_bar$up(i)
+          }
+        } else {
+          pb_bar$up(i)
+        }
       }
       return(out)
     } else {
@@ -84,16 +97,15 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
   if (inherits(cl, "cluster")) {
     PAR_FUN <- if (load_balancing) parallel::parLapplyLB else parallel::parLapply
     if (pb) {
-      Split <- splitpb(length(.x), length(cl), nout = 100)
-      B <- length(Split)
-      pb_bar <- functionals_progress_bar(min = 0, max = B)
+      pb_bar <- functionals_progress_bar(min = 0, max = length(.x))
       on.exit(pb_bar$kill(), add = TRUE)
-      rval <- vector("list", B)
-      for (i in seq_len(B)) {
-        rval[[i]] <- PAR_FUN(cl, .x[Split[[i]]], .f, ...)
-        pb_bar$up(i)
+      task_fun <- function(item) {
+        tryCatch(
+          list(ok = TRUE, value = .f(item, ...)),
+          error = function(e) list(ok = FALSE, message = conditionMessage(e), call = conditionCall(e))
+        )
       }
-      return(do.call(c, rval))
+      return(.functionals_cluster_queue(cl, .x, task_fun, pb_bar = pb_bar))
     } else {
       return(PAR_FUN(cl, .x, .f, ...))
     }
@@ -102,18 +114,18 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
   # if user requested multicore (Unix only)
   if (!is_windows && is.null(cl)) {
     if (pb) {
-      Split <- splitpb(length(.x), ncores, nout = 100)
-      B <- length(Split)
-      pb_bar <- functionals_progress_bar(min = 0, max = B)
+      pb_bar <- functionals_progress_bar(min = 0, max = length(.x))
       on.exit(pb_bar$kill(), add = TRUE)
-      rval <- vector("list", B)
-      for (i in seq_len(B)) {
-        rval[[i]] <- suppressWarnings(suppressMessages(
-          parallel::mclapply(.x[Split[[i]]], .f, ..., mc.cores = ncores, mc.silent = TRUE)
-        ))
-        pb_bar$up(i)
+      task_fun <- function(item) {
+        tryCatch(
+          list(
+            ok = TRUE,
+            value = suppressWarnings(suppressMessages(.f(item, ...)))
+          ),
+          error = function(e) list(ok = FALSE, message = conditionMessage(e), call = conditionCall(e))
+        )
       }
-      return(do.call(c, rval))
+      return(.functionals_multicore_queue(.x, task_fun, ncores = ncores, pb_bar = pb_bar))
     } else {
       return(
         suppressWarnings(suppressMessages(
@@ -129,16 +141,15 @@ fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = T
 
   PAR_FUN <- if (load_balancing) parallel::parLapplyLB else parallel::parLapply
   if (pb) {
-    Split <- splitpb(length(.x), ncores, nout = 100)
-    B <- length(Split)
-    pb_bar <- functionals_progress_bar(min = 0, max = B)
+    pb_bar <- functionals_progress_bar(min = 0, max = length(.x))
     on.exit(pb_bar$kill(), add = TRUE)
-    rval <- vector("list", B)
-    for (i in seq_len(B)) {
-      rval[[i]] <- PAR_FUN(cl, .x[Split[[i]]], .f, ...)
-      pb_bar$up(i)
+    task_fun <- function(item) {
+      tryCatch(
+        list(ok = TRUE, value = .f(item, ...)),
+        error = function(e) list(ok = FALSE, message = conditionMessage(e), call = conditionCall(e))
+      )
     }
-    return(do.call(c, rval))
+    return(.functionals_cluster_queue(cl, .x, task_fun, pb_bar = pb_bar))
   } else {
     return(PAR_FUN(cl, .x, .f, ...))
   }

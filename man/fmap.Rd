@@ -13,7 +13,8 @@ fmap(.x, .f, ncores = NULL, pb = FALSE, ...)
 
 \item{ncores}{Integer. Number of CPU cores to use for parallel processing. Default is `NULL` (sequential).}
 
-\item{pb}{Logical. Whether to show a progress bar. Default is `FALSE`.}
+\item{pb}{Logical. Whether to show a progress bar. Default is `FALSE`. In parallel
+mode, progress updates as each completed task returns.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }
@@ -22,6 +23,8 @@ A list of results, one for each element of `.x`.
 }
 \description{
 Applies a function `.f` to each element of `.x`, with optional parallel processing and progress bar support.
+Progress behavior is inherited from `fapply()`, including completion-driven updates
+in the parallel execution paths.
 }
 \examples{
 slow_fn <- function(x) { Sys.sleep(0.01); x^2 }
