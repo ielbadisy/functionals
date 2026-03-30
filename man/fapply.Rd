@@ -30,6 +30,8 @@ A lightweight and fast version of `lapply()` with support for multicore (Unix) a
 clusters via `parallel`, with internal progress bar tracking and message suppression.
 When `pb = TRUE`, progress advances when individual tasks complete, including in the
 parallel paths, so counts reflect completed jobs rather than internal chunk boundaries.
+Progress rendering is throttled for large workloads to keep console redraw overhead bounded,
+while status output reports elapsed time and estimated time remaining.
 }
 \examples{
 # Basic usage (sequential)

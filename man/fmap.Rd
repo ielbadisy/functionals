@@ -24,7 +24,8 @@ A list of results, one for each element of `.x`.
 \description{
 Applies a function `.f` to each element of `.x`, with optional parallel processing and progress bar support.
 Progress behavior is inherited from `fapply()`, including completion-driven updates
-in the parallel execution paths.
+in the parallel execution paths, bounded redraw frequency for large workloads,
+and elapsed/ETA status reporting.
 }
 \examples{
 slow_fn <- function(x) { Sys.sleep(0.01); x^2 }

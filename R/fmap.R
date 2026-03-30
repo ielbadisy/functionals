@@ -2,7 +2,8 @@
 #'
 #' Applies a function `.f` to each element of `.x`, with optional parallel processing and progress bar support.
 #' Progress behavior is inherited from `fapply()`, including completion-driven updates
-#' in the parallel execution paths.
+#' in the parallel execution paths, bounded redraw frequency for large workloads,
+#' and elapsed/ETA status reporting.
 #'
 #' @param .x A list or atomic vector of elements to iterate over.
 #' @param .f A function to apply to each element of `.x`. Can be a function or a string naming a function.
@@ -35,4 +36,3 @@ fmap <- function(.x, .f, ncores = NULL, pb = FALSE, ...) {
   .f <- match.fun(.f)
   fapply(.x, .f, ncores = ncores %||% 1, pb = pb, ...)
 }
-

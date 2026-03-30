@@ -57,8 +57,11 @@ NULL
 functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, char = "=") {
   start_time <- proc.time()[["elapsed"]]
   last_draw <- -Inf
+  last_value <- min
   i <- min
   if (is.na(width)) width <- getOption("width")
+  total <- max - min
+  redraw_step <- max(1L, ceiling(max(total, 1) / 100))
 
   get_time_str <- function(seconds) {
     seconds <- max(0, round(seconds))
@@ -68,22 +71,29 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
   }
 
   draw <- function(value, now) {
-    total <- max - min
     percent <- if (total > 0) (value - min) / total else 1
     percent <- max(0, min(1, percent))
     completed <- value - min
     total_steps <- max(total, 0)
     elapsed <- now - start_time
-    eta <- if (percent > 0 && elapsed >= 3) elapsed * (1 - percent) / percent else NA
-    status <- sprintf("%3d%% %d/%d %s", round(percent * 100), completed, total_steps, get_time_str(elapsed))
+    eta <- if (completed > 0 && percent > 0) elapsed * (1 - percent) / percent else NA
+    status <- sprintf(
+      "%3d%% %d/%d elapsed %s",
+      round(percent * 100),
+      completed,
+      total_steps,
+      get_time_str(elapsed)
+    )
     if (!is.na(eta)) status <- sprintf("%s eta %s", status, get_time_str(eta))
 
     bar_width <- max(10, min(30, width - nchar(status) - 6))
     done <- floor(bar_width * percent)
     left <- bar_width - done
+    clear()
     cat(sprintf("\r[%s%s] %s", strrep(char, done), strrep(" ", left), status))
     flush.console()
     last_draw <<- now
+    last_value <<- value
   }
 
   update <- function(value) {
@@ -91,7 +101,9 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
     i <<- value
     now <- proc.time()[["elapsed"]]
     is_final <- isTRUE(value >= max)
-    if ((now - last_draw) >= 0.1 || is_final) {
+    advanced_enough <- (value - last_value) >= redraw_step
+    is_initial <- !is.finite(last_draw)
+    if (is_initial || ((now - last_draw) >= 0.1 && advanced_enough) || is_final) {
       draw(value, now)
     }
   }

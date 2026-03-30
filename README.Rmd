@@ -21,7 +21,9 @@ knitr::opts_chunk$set(
 
 As of `0.5.1`, progress reporting is completion-driven across sequential,
 multicore, and cluster-backed execution. When `pb = TRUE`, the bar advances as
-individual tasks finish rather than at internal chunk boundaries.
+individual tasks finish rather than at internal chunk boundaries. Rendering is
+throttled for large workloads so the console keeps a single lightweight status
+bar instead of redrawing on every task.
 
 
 ## Function Reference Table
@@ -136,8 +138,9 @@ slow <- function(x) {
 fmap(1:4, slow, ncores = 2, pb = TRUE)
 ```
 
-The progress bar advances on each completed task, so intermediate counts reflect
-completed jobs rather than chunk totals.
+The progress bar advances on each completed task, shows elapsed time and ETA,
+and throttles redraws for large workloads so intermediate counts stay readable
+without repainting the console on every iteration.
 
 
 ## Multi-input map

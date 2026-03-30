@@ -12,7 +12,9 @@ lists, data frames, and grouped data.
 As of `0.5.1`, progress reporting is completion-driven across
 sequential, multicore, and cluster-backed execution. When `pb = TRUE`,
 the bar advances as individual tasks finish rather than at internal
-chunk boundaries.
+chunk boundaries. Rendering is throttled for large workloads so the
+console keeps a single lightweight status bar instead of redrawing on
+every task.
 
 ## Function Reference Table
 
@@ -136,7 +138,7 @@ slow <- function(x) {
 }
 
 fmap(1:4, slow, ncores = 2, pb = TRUE)
-#> [                              ]   0% 0/4 00:00[=======                       ]  25% 1/4 00:00[===============               ]  50% 2/4 00:00[======================        ]  75% 3/4 00:00[==============================] 100% 4/4 00:01
+#>                                                                                 [                              ]   0% 0/4 elapsed 00:00                                                                                [=======                       ]  25% 1/4 elapsed 00:00 eta 00:00                                                                                [===============               ]  50% 2/4 elapsed 00:00 eta 00:00                                                                                [======================        ]  75% 3/4 elapsed 00:00 eta 00:00                                                                                [==============================] 100% 4/4 elapsed 00:01 eta 00:00
 #> [[1]]
 #> [1] 1
 #> 
@@ -150,8 +152,9 @@ fmap(1:4, slow, ncores = 2, pb = TRUE)
 #> [1] 16
 ```
 
-The progress bar advances on each completed task, so intermediate counts
-reflect completed jobs rather than chunk totals.
+The progress bar advances on each completed task, shows elapsed time and
+ETA, and throttles redraws for large workloads so intermediate counts
+stay readable without repainting the console on every iteration.
 
 ## Multi-input map
 
@@ -259,10 +262,10 @@ cat("\nGeneral-purpose loop (side-effects):\n")
 #> 
 #> General-purpose loop (side-effects):
 floop(1:3, function(x) cat("floop says:", x, "\n"), pb = TRUE, .capture = FALSE)
-#> [                              ]   0% 0/3 00:00                                                                                floop says: 1 
-#> [==========                    ]  33% 1/3 00:00                                                                                floop says: 2 
-#> [====================          ]  67% 2/3 00:00                                                                                floop says: 3 
-#> [==============================] 100% 3/3 00:00
+#>                                                                                 [                              ]   0% 0/3 elapsed 00:00                                                                                floop says: 1 
+#>                                                                                 [==========                    ]  33% 1/3 elapsed 00:00 eta 00:00                                                                                floop says: 2 
+#>                                                                                 [====================          ]  67% 2/3 elapsed 00:00 eta 00:00                                                                                floop says: 3 
+#>                                                                                 [==============================] 100% 3/3 elapsed 00:00 eta 00:00
 cat("for-loop equivalent:\n")
 #> for-loop equivalent:
 for (x in 1:3) cat("for says:", x, "\n")

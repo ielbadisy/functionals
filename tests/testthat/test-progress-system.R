@@ -18,7 +18,7 @@ test_that("fapply stays silent when progress is disabled", {
   expect_equal(unname(out), as.list(1:3))
 })
 
-test_that("sequential progress uses task totals and delays ETA until late enough", {
+test_that("sequential progress uses task totals and reports ETA from completed work", {
   skip_on_cran()
 
   output <- capture_progress_output({
@@ -32,9 +32,8 @@ test_that("sequential progress uses task totals and delays ETA until late enough
   counts <- c("0/4", "1/4", "2/4", "3/4", "4/4")
 
   expect_true(all(vapply(counts, function(count) any(grepl(count, lines, fixed = TRUE)), logical(1))))
-
-  early_lines <- lines[grepl("1/4|2/4", lines)]
-  expect_false(any(grepl("eta", early_lines, fixed = TRUE)))
+  expect_true(any(grepl("elapsed", lines, fixed = TRUE)))
+  expect_true(any(grepl("eta", lines[grepl("1/4", lines, fixed = TRUE)], fixed = TRUE)))
   expect_true(any(grepl("eta", lines, fixed = TRUE)))
 })
 
