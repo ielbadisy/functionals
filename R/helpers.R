@@ -62,6 +62,7 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
   if (is.na(width)) width <- getOption("width")
   total <- max - min
   redraw_step <- max(1L, ceiling(max(total, 1) / 100))
+  tick_interval <- 0.25
 
   get_time_str <- function(seconds) {
     seconds <- max(0, round(seconds))
@@ -108,6 +109,14 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
     }
   }
 
+  tick <- function() {
+    if (i >= max) return()
+    now <- proc.time()[["elapsed"]]
+    if ((now - last_draw) >= tick_interval) {
+      draw(i, now)
+    }
+  }
+
   clear <- function() {
     cat("\r", strrep(" ", width), "\r", sep = "")
   }
@@ -122,7 +131,7 @@ functionals_progress_bar <- function(min = 0, max = 1, style = 1, width = NA, ch
 
   kill <- function() cat("\n")
   update(i)
-  list(up = update, kill = kill, emit = emit, clear = clear)
+  list(up = update, tick = tick, kill = kill, emit = emit, clear = clear)
 }
 
 
@@ -179,10 +188,12 @@ splitpb <- function(nx, ncl, nout = 100) {
   parallel_ns <- asNamespace("parallel")
   send_call <- get("sendCall", envir = parallel_ns)
   recv_one_result <- get("recvOneResult", envir = parallel_ns)
+  is_sock_cluster <- inherits(cl, "SOCKcluster") || all(vapply(cl, inherits, logical(1), what = "SOCKnode"))
 
   out <- vector("list", length(.x))
   next_idx <- 1L
   n_workers <- min(length(cl), length(.x))
+  socklist <- if (is_sock_cluster) lapply(cl, function(x) x$con) else NULL
 
   for (worker_idx in seq_len(n_workers)) {
     send_call(cl[[worker_idx]], task_fun, list(.x[[next_idx]]), tag = next_idx)
@@ -191,7 +202,19 @@ splitpb <- function(nx, ncl, nout = 100) {
 
   completed <- 0L
   while (completed < length(.x)) {
-    res <- recv_one_result(cl)
+    res <- if (is_sock_cluster) {
+      ready <- socketSelect(socklist, timeout = 0.25)
+      if (!any(ready)) {
+        if (!is.null(pb_bar)) pb_bar$tick()
+        next
+      }
+      node <- which.max(ready)
+      value <- unserialize(socklist[[node]])
+      list(value = value$value, node = node, tag = value$tag)
+    } else {
+      recv_one_result(cl)
+    }
+
     out[[res$tag]] <- .functionals_unwrap_task_result(res$value)
     completed <- completed + 1L
     if (!is.null(pb_bar)) pb_bar$up(completed)
@@ -234,7 +257,10 @@ splitpb <- function(nx, ncl, nout = 100) {
   completed <- 0L
   while (completed < length(.x)) {
     res <- parallel::mccollect(jobs, wait = FALSE, timeout = 0.1)
-    if (is.null(res)) next
+    if (is.null(res)) {
+      if (!is.null(pb_bar)) pb_bar$tick()
+      next
+    }
 
     for (name in names(res)) {
       out[[as.integer(name)]] <- .functionals_unwrap_task_result(res[[name]])

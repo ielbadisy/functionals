@@ -109,6 +109,25 @@ test_that("cluster-backed progress propagates task errors", {
   )
 })
 
+test_that("cluster-backed progress refreshes elapsed time while waiting", {
+  skip_on_cran()
+
+  cl <- parallel::makeCluster(2)
+  on.exit(parallel::stopCluster(cl), add = TRUE)
+
+  output <- capture_progress_output({
+    out <- fapply(as.list(1:2), function(x) {
+      Sys.sleep(c(1.2, 1.6)[[x]])
+      x
+    }, cl = cl, pb = TRUE)
+  })
+
+  lines <- progress_lines(output)
+
+  expect_true(any(grepl("0/2 elapsed 00:01", lines, fixed = TRUE)))
+  expect_equal(unname(out), as.list(1:2))
+})
+
 test_that("multicore progress propagates task errors", {
   skip_on_cran()
   skip_on_os("windows")
@@ -120,4 +139,21 @@ test_that("multicore progress propagates task errors", {
     }, ncores = 2, pb = TRUE),
     "multicore-boom"
   )
+})
+
+test_that("multicore progress refreshes elapsed time while waiting", {
+  skip_on_cran()
+  skip_on_os("windows")
+
+  output <- capture_progress_output({
+    out <- fapply(as.list(1:2), function(x) {
+      Sys.sleep(c(1.2, 1.6)[[x]])
+      x
+    }, ncores = 2, pb = TRUE)
+  })
+
+  lines <- progress_lines(output)
+
+  expect_true(any(grepl("0/2 elapsed 00:01", lines, fixed = TRUE)))
+  expect_equal(unname(out), as.list(1:2))
 })
