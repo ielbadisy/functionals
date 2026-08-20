@@ -24,14 +24,14 @@
 #' formulas <- list(y1 ~ x, y2 ~ x)
 #' data_list <- list(df, df)
 #'
-#' fmapn(list(formula = formulas, data = data_list), function(formula, data) {
-#'   lm(formula, data = data)
-#' })
+#' fmapn(list(formula = formulas, data = data_list),
+#'       function(formula, data) lm(formula, data = data))
 #'
 #' # Extract model summaries in parallel
-#' models <- fmapn(list(formula = formulas, data = data_list), function(formula, data) {
-#'   summary(lm(formula, data = data))$r.squared
-#' })
+#' models <- fmapn(
+#'   list(formula = formulas, data = data_list),
+#'   function(formula, data) summary(lm(formula, data = data))$r.squared
+#' )
 #'
 #' @export
 

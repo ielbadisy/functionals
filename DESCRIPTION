@@ -13,7 +13,6 @@ Description: Provides functional tools such as fmap(), fwalk(), and fapply()
     simulations and benchmarking.
 License: MIT + file LICENSE
 Encoding: UTF-8
-LazyData: true
 Imports:
     parallel
 Suggests: 
@@ -21,6 +20,6 @@ Suggests:
     bench,
     rsample
 Config/testthat/edition: 3
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 URL: https://CRAN.R-project.org/package=functionals
 BugReports: https://github.com/ielbadisy/functionals/issues

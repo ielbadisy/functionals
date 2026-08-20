@@ -13,6 +13,7 @@ and progress bars.
 \seealso{
 Useful links:
 \itemize{
+  \item \url{https://CRAN.R-project.org/package=functionals}
   \item Report bugs at \url{https://github.com/ielbadisy/functionals/issues}
 }
 

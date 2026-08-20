@@ -28,7 +28,9 @@ the column vector and its name, enabling name-aware column processing. Supports 
 df <- data.frame(a = 1:3, b = 4:6)
 
 # Apply a function that returns column mean and name
-fmapc(df, function(x, name) list(mean = mean(x), var = var(x), name = name))
+fmapc(df, function(x, name) {
+  list(mean = mean(x), var = var(x), name = name)
+})
 
 # With progress and parallel execution
 \donttest{

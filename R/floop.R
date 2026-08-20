@@ -18,7 +18,8 @@
 #'
 #' # Side-effect only loop (like for-loop with cat)
 #' \donttest{
-#' floop(1:5, function(i) cat(" Processing", i, "\n"), pb = TRUE, .capture = FALSE)
+#' floop(1:5, function(i) cat(" Processing", i, "\n"),
+#'       pb = TRUE, .capture = FALSE)
 #' }
 #'
 #' @export

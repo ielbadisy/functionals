@@ -28,11 +28,14 @@
 #' frepeat(times = 3, expr = function() rnorm(1), simplify = TRUE)
 #'
 #' # Monte Carlo simulation: estimate coverage of a 95% CI for sample mean
-#' mc_result <- frepeat(times = 1000, simplify = TRUE, pb = TRUE, ncores = 1, expr = function() {
-#'   sample <- rnorm(30, mean = 0, sd = 1)
-#'   ci <- t.test(sample)$conf.int
-#'   mean(ci[1] <= 0 & 0 <= ci[2])  # check if true mean is inside the interval
-#' })
+#' mc_result <- frepeat(
+#'   times = 1000, simplify = TRUE, pb = TRUE, ncores = 1,
+#'   expr = function() {
+#'     sample <- rnorm(30, mean = 0, sd = 1)
+#'     ci <- t.test(sample)$conf.int
+#'     mean(ci[1] <= 0 & 0 <= ci[2])  # true mean inside the interval?
+#'   }
+#' )
 #' mean(mc_result)  # estimated coverage
 #'
 #' @note If `expr` is passed as a function call (not a function or quoted expression),

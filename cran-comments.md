@@ -1,6 +1,8 @@
 ## Resubmission
 
-This is a patch release focused on progress-bar correctness and test coverage.
+This is a patch release focused on progress-bar correctness, test coverage,
+and CRAN-check cleanliness (a stray `LazyData` field, overfull PDF-manual
+lines, and DESCRIPTION metadata).
 
 ## Test environments
 
@@ -8,10 +10,4 @@ This is a patch release focused on progress-bar correctness and test coverage.
 
 ## R CMD check results
 
-0 errors | 0 warnings | 1 note
-
-## Notes
-
-- `unable to verify current time`
-- This came from the local `--as-cran` environment during CRAN incoming checks.
-  The package-level checks otherwise completed cleanly.
+0 errors | 0 warnings | 0 notes
