@@ -3,8 +3,8 @@ Type: Package
 Title: Functional Programming with Parallelism and Progress Tracking
 Version: 0.5.1
 Authors@R: 
-    person("Imad", "EL BADISY", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
-Maintainer: Imad EL BADISY <elbadisyimad@gmail.com>
+    person("Imad", "El Badisy", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
+Maintainer: Imad El Badisy <elbadisyimad@gmail.com>
 Description: Provides functional tools such as fmap(), fwalk(), and fapply() 
     to iterate over vectors, data frames, or grouped data with optional parallelism 
     and real-time progress tracking. Progress updates now reflect completed tasks
