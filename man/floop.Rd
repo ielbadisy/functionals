@@ -15,25 +15,25 @@ floop(.x, .f, ncores = 1, pb = FALSE, .capture = TRUE, ...)
 
 \item{pb}{Logical. Show a progress bar? Default is `FALSE`.}
 
-\item{.capture}{Logical. Should results of `.f` be captured and returned? If `FALSE`, acts like a side-effect loop.}
+\item{.capture}{Logical. If `TRUE` (default) results are returned (like
+[fmap()]); if `FALSE`, `.x` is returned invisibly (like [fwalk()]).}
 
 \item{...}{Additional arguments passed to `.f`.}
 }
 \value{
-A list of results if `.capture = TRUE`, otherwise returns `.x` invisibly.
+A list of results if `.capture = TRUE`, otherwise `.x` invisibly.
 }
 \description{
-`floop()` applies a function `.f` to each element of `.x`, optionally in parallel, and with an optional progress bar.
-Unlike `fwalk()`, it can return results or be used purely for side effects (like a for-loop).
+**Deprecated in 0.6.0.** `floop()` never did anything that [fmap()] and
+[fwalk()] do not: `floop(.x, .f)` is [fmap()], and
+`floop(.x, .f, .capture = FALSE)` is [fwalk()]. Use those directly. `floop()`
+will be removed in a future release.
 }
 \examples{
-# Functional loop that collects output
-floop(1:3, function(i) i^2)
+# Prefer fmap() / fwalk():
+fmap(1:3, function(i) i^2)
 
-# Side-effect only loop (like for-loop with cat)
-\donttest{
-floop(1:5, function(i) cat(" Processing", i, "\n"),
-      pb = TRUE, .capture = FALSE)
 }
-
+\seealso{
+[fmap()], [fwalk()]
 }

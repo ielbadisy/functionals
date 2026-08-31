@@ -1,33 +1,41 @@
 #' Functional loop with optional parallelism and progress bar
 #'
-#' `floop()` applies a function `.f` to each element of `.x`, optionally in parallel, and with an optional progress bar.
-#' Unlike `fwalk()`, it can return results or be used purely for side effects (like a for-loop).
+#' @description
+#' **Deprecated in 0.6.0.** `floop()` never did anything that [fmap()] and
+#' [fwalk()] do not: `floop(.x, .f)` is [fmap()], and
+#' `floop(.x, .f, .capture = FALSE)` is [fwalk()]. Use those directly. `floop()`
+#' will be removed in a future release.
 #'
 #' @param .x A vector or list of elements to iterate over.
 #' @param .f A function to apply to each element of `.x`.
 #' @param ncores Integer. Number of cores to use. Default is 1 (sequential).
 #' @param pb Logical. Show a progress bar? Default is `FALSE`.
-#' @param .capture Logical. Should results of `.f` be captured and returned? If `FALSE`, acts like a side-effect loop.
+#' @param .capture Logical. If `TRUE` (default) results are returned (like
+#'   [fmap()]); if `FALSE`, `.x` is returned invisibly (like [fwalk()]).
 #' @param ... Additional arguments passed to `.f`.
 #'
-#' @return A list of results if `.capture = TRUE`, otherwise returns `.x` invisibly.
+#' @return A list of results if `.capture = TRUE`, otherwise `.x` invisibly.
+#'
+#' @seealso [fmap()], [fwalk()]
 #'
 #' @examples
-#' # Functional loop that collects output
-#' floop(1:3, function(i) i^2)
-#'
-#' # Side-effect only loop (like for-loop with cat)
-#' \donttest{
-#' floop(1:5, function(i) cat(" Processing", i, "\n"),
-#'       pb = TRUE, .capture = FALSE)
-#' }
+#' # Prefer fmap() / fwalk():
+#' fmap(1:3, function(i) i^2)
 #'
 #' @export
-
 floop <- function(.x, .f, ncores = 1, pb = FALSE, .capture = TRUE, ...) {
+  .Deprecated(
+    new = if (isTRUE(.capture)) "fmap" else "fwalk",
+    package = "functionals",
+    msg = paste0(
+      "floop() is deprecated as of functionals 0.6.0.\n",
+      "Use fmap() to collect results, or fwalk() for side effects."
+    )
+  )
   .f <- match.fun(.f)
-  if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
-  fwrap <- function(x) {.f(x, ...)}
-  result <- fapply(.x, fwrap, ncores = ncores, pb = pb)
-  if (.capture) result else invisible(.x)
+  if (isTRUE(.capture)) {
+    fmap(.x, .f, ncores = ncores, pb = pb, ...)
+  } else {
+    fwalk(.x, .f, ncores = ncores, pb = pb, ...)
+  }
 }
