@@ -3,7 +3,7 @@ template:
   bootswatch: flatly
 
 navbar:
-  title: "funr"
+  title: "functionals"
   left:
     - text: "Reference"
       href: reference/index.html
@@ -13,7 +13,13 @@ navbar:
       href: https://github.com/ielbadisy/functionals
 
 home:
-  title: "funr: Functional Mapping with Parallelism and Progress Bars"
+  title: "functionals: Functional Programming with Parallelism and Progress Tracking"
+
+articles:
+  - title: "Guides"
+    contents:
+      - functional-programming
+      - modeling-workflow
 
 reference:
   - title: "Mappers"
@@ -24,7 +30,6 @@ reference:
       - fmapc
       - fmapg
       - fwalk
-      - floop
   - title: "Combinators"
     contents:
       - frepeat
@@ -32,3 +37,6 @@ reference:
       - freduce
       - fcompose
       - fapply
+  - title: "Deprecated"
+    contents:
+      - floop

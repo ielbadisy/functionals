@@ -9,12 +9,22 @@ R’s functional tools with a consistent, minimal API for mapping,
 walking, reducing, cross-validating, and repeating computations across
 lists, data frames, and grouped data.
 
-As of `0.5.1`, progress reporting is completion-driven across
-sequential, multicore, and cluster-backed execution. When `pb = TRUE`,
-the bar advances as individual tasks finish rather than at internal
-chunk boundaries. Rendering is throttled for large workloads so the
-console keeps a single lightweight status bar instead of redrawing on
-every task.
+Progress reporting is completion-driven across sequential, multicore,
+and cluster-backed execution. When `pb = TRUE`, the bar advances as
+individual tasks finish rather than at internal chunk boundaries.
+Rendering is throttled for large workloads so the console keeps a
+single lightweight status bar instead of redrawing on every task.
+
+As of `0.6.0`, every mapper also takes:
+
+- `.on_error` — `"stop"` (default), `"pass"` (keep going, store a
+  `functionals_error` in the failed slot), or `"fill"` (substitute
+  `.fill`). Behaves the same sequentially and in parallel.
+- `.seed` — reproducible per-task L'Ecuyer-CMRG RNG streams, invariant
+  to `ncores`; the caller's global RNG state is restored on exit.
+
+`floop()` is deprecated in `0.6.0`: use `fmap()` to collect results or
+`fwalk()` for side effects.
 
 ## Function Reference Table
 
@@ -25,8 +35,8 @@ every task.
 | `fmapr()`    | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f` over each row of a data frame (as named list)      |
 | `fmapc()`    | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f(column, name)` over each column                     |
 | `fmapg()`    | `.df`, `.f`, `by`, `ncores`, `pb`     | list        | Map `.f(group_df)` over groups defined by a column          |
-| `floop()`    | `.x`, `.f`, `...`, `ncores`, `pb`     | list        | General-purpose functional loop with side-effects           |
 | `fwalk()`    | `.x`, `.f`, `ncores`, `pb`            | NULL        | Map `.f` over `.x` for side-effects only (invisible return) |
+| `floop()`    | `.x`, `.f`, `...`, `ncores`, `pb`     | list        | Deprecated in 0.6.0 — use `fmap()` / `fwalk()`              |
 | `frepeat()`  | `times`, `expr`, `.x`, `ncores`, `pb` | list/vector | Repeat a call/expression multiple times                     |
 | `fcv()`      | `.splits`, `.f`, `ncores`, `pb`       | list        | Map `.f` over resampling splits from `rsample::vfold_cv()`  |
 | `freduce()`  | `.x`, `.f`, `...`                     | scalar/list | Reduce `.x` using a binary function `.f`                    |
@@ -42,7 +52,7 @@ every task.
 | Map over data frame rows | `fmapr(df, function(row) row$a + row$b)`                  | `pmap(df[c("a", "b")], function(x, y) x + y)`      | `apply(df, 1, function(row) ...)`           |
 | Map over data frame cols | `fmapc(df, function(x, name) mean(x))`                    | `imap(df, function(x, name) mean(x))`              | `lapply(df, mean)`                          |
 | Grouped map              | `fmapg(df, f, by = "group")`                              | `map(split(df, df$group), f)`                      | `lapply(split(df, df$group), f)`            |
-| General-purpose loop     | `floop(1:3, function(x) cat(x))`                          | *(manual recursion)*                               | `for (x in 1:3) cat(x)`                     |
+| Side-effect loop         | `fwalk(1:3, function(x) cat(x))`                          | `walk(1:3, function(x) cat(x))`                    | `for (x in 1:3) cat(x)`                     |
 | Parallel + progress      | `fmap(x, f, ncores = 4, pb = TRUE)`                       | *(future_map(x, f))* with `progressr`              | `parLapply(cl, x, f)` or `mclapply()`       |
 | Repeat simulation        | `frepeat(100, function() rnorm(1))`                       | *(manual loop)*                                    | `replicate(100, rnorm(1))`                  |
 | Walk with side effects   | `fwalk(letters, function(x) cat(x))`                      | `walk(letters, function(x) cat(x))`                | `lapply(letters, cat)`                      |
@@ -237,41 +247,44 @@ fwalk(1:3, print)
 #> [1] 3
 ```
 
-### General-purpose loop with return values
+### Map with return values
 
 ``` r
-x1 <- floop(1:5, function(x) x^2, .capture = TRUE)
+x1 <- fmap(1:5, function(x) x^2)
 x2 <- lapply(1:5, function(x) x^2)
 x3 <- {
   out <- list()
   for (i in 1:5) out[[i]] <- i^2
   out
 }
-compare_outputs("floop() vs lapply()", x1, x2)
+compare_outputs("fmap() vs lapply()", x1, x2)
 #> 
-#>  floop() vs lapply() -> dentical
-compare_outputs("floop() vs for()", x1, x3)
+#>  fmap() vs lapply() -> identical
+compare_outputs("fmap() vs for()", x1, x3)
 #> 
-#>  floop() vs for() -> dentical
+#>  fmap() vs for() -> identical
 ```
 
-### General-purpose loop (side-effect only)
+### Safe iteration and reproducible randomness
 
 ``` r
-cat("\nGeneral-purpose loop (side-effects):\n")
+# one bad element does not abort the run
+fmap(list(1, "x", 3), function(v) v * 10, .on_error = "fill", .fill = NA)
+#> [[1]]
+#> [1] 10
 #> 
-#> General-purpose loop (side-effects):
-floop(1:3, function(x) cat("floop says:", x, "\n"), pb = TRUE, .capture = FALSE)
-#>                                                                                 [                              ]   0% 0/3 elapsed 00:00                                                                                floop says: 1 
-#>                                                                                 [==========                    ]  33% 1/3 elapsed 00:00 eta 00:00                                                                                floop says: 2 
-#>                                                                                 [====================          ]  67% 2/3 elapsed 00:00 eta 00:00                                                                                floop says: 3 
-#>                                                                                 [==============================] 100% 3/3 elapsed 00:00 eta 00:00
-cat("for-loop equivalent:\n")
-#> for-loop equivalent:
-for (x in 1:3) cat("for says:", x, "\n")
-#> for says: 1 
-#> for says: 2 
-#> for says: 3
+#> [[2]]
+#> [1] NA
+#> 
+#> [[3]]
+#> [1] 30
+
+# reproducible regardless of ncores
+identical(
+  fmap(1:4, function(i) rnorm(1), .seed = 1),
+  fmap(1:4, function(i) rnorm(1), .seed = 1, ncores = 2)
+)
+#> [1] TRUE
 ```
 
 ### Cross-validation
