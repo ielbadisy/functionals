@@ -12,18 +12,13 @@ lists, data frames, and grouped data.
 Progress reporting is completion-driven across sequential, multicore,
 and cluster-backed execution. When `pb = TRUE`, the bar advances as
 individual tasks finish rather than at internal chunk boundaries.
-Rendering is throttled for large workloads so the console keeps a
-single lightweight status bar instead of redrawing on every task.
+Rendering is throttled for large workloads so the console keeps a single
+lightweight status bar instead of redrawing on every task.
 
-As of `0.6.0`, every mapper also takes:
-
-- `.on_error` — `"stop"` (default), `"pass"` (keep going, store a
-  `functionals_error` in the failed slot), or `"fill"` (substitute
-  `.fill`). Behaves the same sequentially and in parallel.
-- `.seed` — reproducible per-task L'Ecuyer-CMRG RNG streams, invariant
-  to `ncores`; the caller's global RNG state is restored on exit.
-
-`floop()` is deprecated in `0.6.0`: use `fmap()` to collect results or
+As of `0.6.0`, every mapper also takes `.on_error` (`"stop"` / `"pass"`
+/ `"fill"`, identical behaviour sequential or parallel) and `.seed`
+(reproducible per-task L’Ecuyer-CMRG RNG streams, invariant to
+`ncores`). `floop()` is deprecated: use `fmap()` to collect results or
 `fwalk()` for side effects.
 
 ## Function Reference Table
@@ -259,10 +254,10 @@ x3 <- {
 }
 compare_outputs("fmap() vs lapply()", x1, x2)
 #> 
-#>  fmap() vs lapply() -> identical
+#>  fmap() vs lapply() -> dentical
 compare_outputs("fmap() vs for()", x1, x3)
 #> 
-#>  fmap() vs for() -> identical
+#>  fmap() vs for() -> dentical
 ```
 
 ### Safe iteration and reproducible randomness
