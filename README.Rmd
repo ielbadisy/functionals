@@ -41,7 +41,7 @@ deprecated: use `fmap()` to collect results or `fwalk()` for side effects.
 | `fmapc()`    | `.df`, `.f`, `ncores`, `pb`           | list        | Map `.f(column, name)` over each column                         |
 | `fmapg()`    | `.df`, `.f`, `by`, `ncores`, `pb`     | list        | Map `.f(group_df)` over groups defined by a column              |
 | `fwalk()`    | `.x`, `.f`, `ncores`, `pb`            | NULL        | Map `.f` over `.x` for side-effects only (invisible return)     |
-| `floop()`    | `.x`, `.f`, `...`, `ncores`, `pb`     | list        | Deprecated in 0.6.0 — use `fmap()` / `fwalk()`                  |
+| `floop()`    | `.x`, `.f`, `...`, `ncores`, `pb`     | list        | Deprecated in 0.6.0: use `fmap()` or `fwalk()`                  |
 | `frepeat()`  | `times`, `expr`, `.x`, `ncores`, `pb` | list/vector | Repeat a call/expression multiple times                         |
 | `fcv()`      | `.splits`, `.f`, `ncores`, `pb`       | list        | Map `.f` over resampling splits from `rsample::vfold_cv()`      |
 | `freduce()`  | `.x`, `.f`, `...`                     | scalar/list | Reduce `.x` using a binary function `.f`                        |

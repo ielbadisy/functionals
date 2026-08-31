@@ -37,7 +37,7 @@ do.call(rbind, by_species)
 
 ## Fit many model specifications
 
-Row-wise over a table of formulas with `fmapr()` -- each row arrives as a named
+Row-wise over a table of formulas with `fmapr()`, where each row arrives as a named
 list:
 
 ```{r}
@@ -94,7 +94,7 @@ For a slow learner, add `ncores` and `pb = TRUE` and nothing else changes:
 cv_rows <- fcv(folds$splits, evaluate_one, ncores = 5, pb = TRUE)
 ```
 
-If a fold can fail -- a degenerate resample, a non-converging fit -- use
+If a fold can fail (a degenerate resample, a non-converging fit), use
 `.on_error = "pass"` and drop the failures afterwards:
 
 ```{r eval = has_rsample}
@@ -129,7 +129,7 @@ c(
 ```
 
 ```{r}
-# same result, more cores -- .seed is invariant to ncores
+# same result, more cores; .seed is invariant to ncores
 b2 <- frepeat(times = 200, .seed = 2024, simplify = TRUE, ncores = 2, expr = function() {
   idx <- sample(nrow(mtcars), replace = TRUE)
   coef(lm(mpg ~ wt, data = mtcars[idx, ]))[["wt"]]
@@ -164,7 +164,7 @@ data.frame(learner = names(bench_tbl), cv_rmse = round(unlist(bench_tbl), 3))
 
 Swap `fmap(learners, cv_rmse, ...)` for
 `fmap(learners, cv_rmse, ncores = 3, pb = TRUE)` to run the learners in
-parallel with a progress bar -- the rest of the code is unchanged.
+parallel with a progress bar; the rest of the code is unchanged.
 
 ## Note on non-forkable models
 
@@ -172,4 +172,4 @@ parallel with a progress bar -- the rest of the code is unchanged.
 state that does not survive a fork. Build such objects *inside* `.f` (so each
 worker makes its own) rather than capturing them from the caller. When that is
 not possible, keep that loop sequential (`ncores = NULL`) and parallelise a
-different level -- the folds, the learners, or the bootstrap.
+different level: the folds, the learners, or the bootstrap.

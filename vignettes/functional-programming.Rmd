@@ -21,10 +21,10 @@ set.seed(1)
 Functional programming builds a computation out of small, referentially
 transparent pieces: functions that take input, return output, and do not reach
 outside themselves to mutate state. In R this style is natural because functions
-are ordinary values -- you can pass them, return them, and store them in lists.
+are ordinary values: you can pass them, return them, and store them in lists.
 
 `functionals` is a small toolkit for that style. It gives one consistent family
-of *functionals* -- functions that take a function as an argument -- with the
+of *functionals* (functions that take a function as an argument), with the
 same four arguments everywhere:
 
 | argument      | meaning                                             |
@@ -105,7 +105,7 @@ freduce(1:5, `+`)
 freduce(1:5, `+`, .accumulate = TRUE)
 ```
 
-A small pipeline built entirely from functionals -- fit nothing, just transform:
+A small pipeline built entirely from functionals, fitting nothing, just transforming:
 
 ```{r}
 pipeline <- fcompose(
@@ -190,7 +190,7 @@ Differences that matter:
 
 * **Dependencies.** `functionals` imports only `parallel`. `purrr` pulls in
   `rlang`, `cli`, `vctrs`, and more.
-* **Anonymous functions.** `functionals` takes plain closures only -- no
+* **Anonymous functions.** `functionals` takes plain closures only, with no
   `~ .x + 1` formula shorthand. R's native `\(x) x + 1` covers most of that gap.
 * **Parallelism is built in.** In `purrr` you switch to `furrr` and set a
   `future` plan; here it is the `ncores` argument.
@@ -233,7 +233,7 @@ if (nzchar(rds)) {
 ```
 
 The takeaway is deliberately unglamorous: with one thread and a cheap `.f`, all
-three are within a small constant factor -- `fmap()` is `lapply()` plus an
+three are within a small constant factor: `fmap()` is `lapply()` plus an
 argument check, and `purrr::map()` is also compiled C. Raw sequential speed is
 not why you reach for `functionals`. The reasons are the *uniform* interface,
 built-in `ncores` parallelism, the completion-driven progress bar, and the
