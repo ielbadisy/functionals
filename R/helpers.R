@@ -2,6 +2,169 @@
 NULL
 
 
+#' Normalize the `ncores` argument
+#'
+#' Coerces the many spellings of "run sequentially" (`NULL`, `1`, `1L`) to a
+#' single canonical `1L`, and validates anything else. Every user-facing
+#' wrapper funnels `ncores` through this so behaviour is identical across the
+#' whole package.
+#'
+#' @param ncores The user-supplied value.
+#'
+#' @return A positive integer. `NULL` or invalid input becomes `1L`.
+#'
+#' @keywords internal
+#' @noRd
+.norm_ncores <- function(ncores) {
+  if (is.null(ncores)) return(1L)
+  if (!is.numeric(ncores) || length(ncores) != 1L || is.na(ncores) || ncores < 1) {
+    warning("`ncores` must be a single positive integer; running sequentially.", call. = FALSE)
+    return(1L)
+  }
+  as.integer(ncores)
+}
+
+
+#' Build independent RNG streams for reproducible iteration
+#'
+#' Returns one L'Ecuyer-CMRG stream per task so that task `i` draws the same
+#' random numbers regardless of `ncores`, execution order, or which worker
+#' picks it up.
+#'
+#' @param seed A single number seeding the stream generator.
+#' @param n Number of streams to produce.
+#'
+#' @return A list of `.Random.seed`-style integer vectors, length `n`.
+#'
+#' @details The caller is responsible for saving and restoring the global RNG
+#'   state around any use of the streams (`fapply()` does this via `on.exit()`).
+#'
+#' @keywords internal
+#' @noRd
+.rng_streams <- function(seed, n) {
+  if (n <= 0L) return(list())
+  RNGkind("L'Ecuyer-CMRG")
+  set.seed(seed)
+  s <- get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+  streams <- vector("list", n)
+  for (i in seq_len(n)) {
+    streams[[i]] <- s
+    s <- parallel::nextRNGStream(s)
+  }
+  streams
+}
+
+
+#' Snapshot / restore the global RNG state
+#' @keywords internal
+#' @noRd
+.rng_snapshot <- function() {
+  list(
+    kind = RNGkind(),
+    seed = if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      get(".Random.seed", envir = .GlobalEnv, inherits = FALSE)
+    } else {
+      NULL
+    }
+  )
+}
+
+#' @keywords internal
+#' @noRd
+.rng_restore <- function(snap) {
+  RNGkind(snap$kind[1], snap$kind[2], snap$kind[3])
+  if (is.null(snap$seed)) {
+    if (exists(".Random.seed", envir = .GlobalEnv, inherits = FALSE)) {
+      rm(".Random.seed", envir = .GlobalEnv)
+    }
+  } else {
+    assign(".Random.seed", snap$seed, envir = .GlobalEnv)
+  }
+}
+
+
+#' Wrap `.f` so a per-task RNG stream is installed before each call
+#'
+#' Rewrites the `(\.x, \.f)` pair into `(seq_along(\.x), wrapped)` where
+#' `wrapped(i)` sets `.Random.seed` to stream `i` and then calls the original
+#' `.f` on `\.x[[i]]`. Works across sequential, fork, and socket back ends
+#' because the streams and originals are captured in the closure.
+#'
+#' @param .x The iterable.
+#' @param .f The function to wrap.
+#' @param seed A single number, or `NULL` to leave `.x`/`.f` untouched.
+#'
+#' @return A list with elements `.x`, `.f`, and `nm` (original names, or `NULL`).
+#'
+#' @keywords internal
+#' @noRd
+.seed_wrap <- function(.x, .f, seed) {
+  if (is.null(seed)) return(list(.x = .x, .f = .f, nm = NULL))
+  streams <- .rng_streams(seed, length(.x))
+  orig_x <- .x
+  orig_f <- .f
+  wrapped <- function(.i, ...) {
+    assign(".Random.seed", streams[[.i]], envir = .GlobalEnv)
+    orig_f(orig_x[[.i]], ...)
+  }
+  list(.x = seq_along(orig_x), .f = wrapped, nm = names(orig_x))
+}
+
+
+#' Sentinel class for a captured task error
+#' @keywords internal
+#' @noRd
+.functionals_error <- function(message, call = NULL) {
+  structure(
+    class = c("functionals_error", "error", "condition"),
+    list(message = message, call = call)
+  )
+}
+
+
+#' Wrap `.f` so task errors are captured instead of aborting the run
+#'
+#' @param .f The function to wrap.
+#' @param on_error One of `"stop"`, `"pass"`, `"fill"`.
+#' @param fill Replacement value used when `on_error = "fill"`.
+#'
+#' @return `.f` unchanged when `on_error = "stop"`, otherwise a wrapper that
+#'   never throws.
+#'
+#' @keywords internal
+#' @noRd
+.error_wrap <- function(.f, on_error, fill) {
+  if (identical(on_error, "stop")) return(.f)
+  force(.f)
+  force(fill)
+  function(...) {
+    tryCatch(
+      .f(...),
+      error = function(e) {
+        if (identical(on_error, "fill")) return(fill)
+        .functionals_error(conditionMessage(e), conditionCall(e))
+      }
+    )
+  }
+}
+
+
+#' Emit the one-line summary warning after an `on_error = "pass"` run
+#' @keywords internal
+#' @noRd
+.warn_failures <- function(out) {
+  failed <- vapply(out, inherits, logical(1), what = "functionals_error")
+  n <- sum(failed)
+  if (n) {
+    warning(sprintf(
+      "%d of %d element%s failed; returned as <functionals_error> (inspect with conditionMessage()).",
+      n, length(out), if (n == 1L) "" else "s"
+    ), call. = FALSE)
+  }
+  invisible(out)
+}
+
+
 #' Validate and normalize fapply arguments
 #'
 #' Internal helper to check and coerce inputs for `fapply()`.

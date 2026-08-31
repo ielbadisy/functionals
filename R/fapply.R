@@ -14,6 +14,18 @@
 #' completed tasks. In parallel mode, updates occur as workers return results.
 #' @param cl A cluster object (from parallel::makeCluster), or integer for core count.
 #' @param load_balancing Logical. Use `parLapplyLB` if `TRUE` (default: `FALSE`).
+#' @param .on_error How to handle an error thrown by `.f`. `"stop"` (default)
+#'   aborts the whole run, matching base `lapply()`. `"pass"` keeps going and
+#'   stores an object of class `"functionals_error"` in the failed position
+#'   (inspect with `conditionMessage()`), then emits a one-line summary
+#'   warning. `"fill"` replaces each failed result with `.fill`. The behaviour
+#'   is identical whether execution is sequential or parallel.
+#' @param .fill Replacement value used for failed elements when
+#'   `.on_error = "fill"`. Default `NULL`.
+#' @param .seed Optional single number. When supplied, task `i` is run with its
+#'   own L'Ecuyer-CMRG random-number stream, so results are reproducible and
+#'   independent of `ncores` or task-completion order. The caller's global RNG
+#'   state is restored on exit.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results.
@@ -47,16 +59,48 @@
 #'
 #' @export
 
-fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = TRUE, ...) {
+fapply <- function(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = TRUE,
+                   .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
+  .on_error <- match.arg(.on_error)
   if (!is.vector(.x) || is.object(.x)) .x <- as.list(.x)
   if (!length(.x)) return(list())
+
+  ncores <- .norm_ncores(ncores)
+
+  # per-task RNG streams (rewrites .x -> seq_along, .f -> stream-installing wrapper)
+  if (!is.null(.seed)) {
+    .rng0 <- .rng_snapshot()
+    on.exit(.rng_restore(.rng0), add = TRUE)
+  }
+  sw <- .seed_wrap(.x, .f, .seed)
+  .x <- sw$.x
+  .f <- sw$.f
+  orig_names <- sw$nm
+  # capture .f errors uniformly across every back end
+  .f <- .error_wrap(.f, .on_error, .fill)
 
   is_windows <- .Platform$OS.type == "windows"
   use_parallel <- isTRUE(ncores > 1L)
 
   # disable crashpad messages
   Sys.setenv(CHROME_CRASHPAD_PIPE_NAME = "disable")
+
+  out <- .fapply_run(
+    .x, .f, ncores = ncores, pb = pb, cl = cl,
+    load_balancing = load_balancing, is_windows = is_windows,
+    use_parallel = use_parallel, ...
+  )
+
+  if (!is.null(orig_names)) names(out) <- orig_names
+  if (identical(.on_error, "pass")) .warn_failures(out)
+  out
+}
+
+#' Internal dispatch for fapply's execution back ends
+#' @keywords internal
+#' @noRd
+.fapply_run <- function(.x, .f, ncores, pb, cl, load_balancing, is_windows, use_parallel, ...) {
 
   # sequential fallback
   if (!use_parallel && is.null(cl)) {

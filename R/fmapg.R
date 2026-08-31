@@ -8,6 +8,10 @@
 #' @param by A character vector of column names in `.df` used for grouping.
 #' @param ncores Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to show a progress bar. Default is `FALSE`.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Replacement for failed groups when `.on_error = "fill"`.
+#' @param .seed Optional single number for reproducible per-group RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results, one for each group defined by `by`.
@@ -25,9 +29,11 @@
 #' @export
 
 
-fmapg <- function(.df, .f, by, ncores = NULL, pb = FALSE, ...) {
+fmapg <- function(.df, .f, by, ncores = NULL, pb = FALSE,
+                  .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   stopifnot(is.data.frame(.df), all(by %in% names(.df)))
   groups <- split(.df, .df[by], drop = TRUE)
   .f <- match.fun(.f)
-  fapply(groups, .f, ncores = ncores, pb = pb, ...)
+  fapply(groups, .f, ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed, ...)
 }

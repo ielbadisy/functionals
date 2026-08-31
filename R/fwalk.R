@@ -7,6 +7,12 @@
 #' @param .f A function to apply to each element of `.x`. Should be called primarily for side effects.
 #' @param ncores Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to show a progress bar. Default is `FALSE`.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Ignored for the return value (kept for signature parity with
+#'   the other mappers); failed elements simply do not raise when
+#'   `.on_error != "stop"`.
+#' @param .seed Optional single number for reproducible per-task RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return Invisibly returns `.x`, like `purrr::walk()`.
@@ -25,9 +31,11 @@
 #'
 #' @export
 
-fwalk <- function(.x, .f, ncores = NULL, pb = FALSE, ...) {
+fwalk <- function(.x, .f, ncores = NULL, pb = FALSE,
+                  .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
-  tmp <- fapply(.x, function(x) {.f(x, ...); NULL}, ncores = ncores, pb = pb)
+  fapply(.x, function(x) {.f(x, ...); NULL}, ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed)
   invisible(.x)
 }
 

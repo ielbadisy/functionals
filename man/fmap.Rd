@@ -4,7 +4,16 @@
 \alias{fmap}
 \title{Functional mapping with optional parallelism and progress bars}
 \usage{
-fmap(.x, .f, ncores = NULL, pb = FALSE, ...)
+fmap(
+  .x,
+  .f,
+  ncores = NULL,
+  pb = FALSE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.x}{A list or atomic vector of elements to iterate over.}
@@ -15,6 +24,14 @@ fmap(.x, .f, ncores = NULL, pb = FALSE, ...)
 
 \item{pb}{Logical. Whether to show a progress bar. Default is `FALSE`. In parallel
 mode, progress updates as each completed task returns.}
+
+\item{.on_error}{How errors thrown by `.f` are handled: `"stop"` (default),
+`"pass"` (keep going, store a `"functionals_error"` object), or `"fill"`
+(replace with `.fill`). See [fapply()].}
+
+\item{.fill}{Replacement for failed elements when `.on_error = "fill"`.}
+
+\item{.seed}{Optional single number for reproducible per-task RNG streams.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }

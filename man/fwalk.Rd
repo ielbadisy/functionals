@@ -4,7 +4,16 @@
 \alias{fwalk}
 \title{Walk over a vector or list with side effects}
 \usage{
-fwalk(.x, .f, ncores = NULL, pb = FALSE, ...)
+fwalk(
+  .x,
+  .f,
+  ncores = NULL,
+  pb = FALSE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.x}{A list or atomic vector of elements to iterate over.}
@@ -14,6 +23,15 @@ fwalk(.x, .f, ncores = NULL, pb = FALSE, ...)
 \item{ncores}{Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).}
 
 \item{pb}{Logical. Whether to show a progress bar. Default is `FALSE`.}
+
+\item{.on_error}{How errors thrown by `.f` are handled: `"stop"` (default),
+`"pass"`, or `"fill"`. See [fapply()].}
+
+\item{.fill}{Ignored for the return value (kept for signature parity with
+the other mappers); failed elements simply do not raise when
+`.on_error != "stop"`.}
+
+\item{.seed}{Optional single number for reproducible per-task RNG streams.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }

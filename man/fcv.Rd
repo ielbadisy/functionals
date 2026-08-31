@@ -4,7 +4,16 @@
 \alias{fcv}
 \title{Functional Cross-Validation mapping}
 \usage{
-fcv(.splits, .f, ncores = NULL, pb = FALSE, ...)
+fcv(
+  .splits,
+  .f,
+  ncores = NULL,
+  pb = FALSE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.splits}{A list of resample splits (e.g., from `rsample::vfold_cv()`).}
@@ -15,6 +24,13 @@ fcv(.splits, .f, ncores = NULL, pb = FALSE, ...)
 
 \item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
 
+\item{.on_error}{How errors thrown by `.f` are handled: `"stop"` (default),
+`"pass"`, or `"fill"`. See [fapply()].}
+
+\item{.fill}{Replacement for failed folds when `.on_error = "fill"`.}
+
+\item{.seed}{Optional single number for reproducible per-fold RNG streams.}
+
 \item{...}{Additional arguments passed to `.f`.}
 }
 \value{
@@ -23,6 +39,12 @@ A list of results returned by applying `.f` to each element of `.splits`.
 \description{
 Applies a user-defined function `.f` to each element of `.splits`, typically from
 cross-validation objects such as `rsample::vfold_cv()`.
+}
+\details{
+`fcv()` is a thin, intention-revealing alias for [fapply()] specialised to a
+list of resample splits: `fcv(splits, f)` is exactly
+`fapply(splits, f)`. Use it when a call site reads better as
+"cross-validate" than as "apply".
 }
 \examples{
 if (requireNamespace("rsample", quietly = TRUE)) {

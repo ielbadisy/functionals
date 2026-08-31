@@ -8,6 +8,10 @@
 #' @param .f A function to apply. It must accept as many arguments as there are elements in `.l`.
 #' @param ncores Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Replacement for failed tuples when `.on_error = "fill"`.
+#' @param .seed Optional single number for reproducible per-tuple RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results obtained by applying `.f` to each tuple from `.l`.
@@ -35,8 +39,11 @@
 #'
 #' @export
 
-fmapn <- function(.l, .f, ncores = NULL, pb = FALSE, ...) {
+fmapn <- function(.l, .f, ncores = NULL, pb = FALSE,
+                  .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
+  dots <- list(...)
   args <- do.call(Map, c(f = list(function(...) list(...)), .l))
-  fapply(args, function(x) do.call(.f, x), ncores = ncores, pb = pb, ...)
+  fapply(args, function(x) do.call(.f, c(x, dots)), ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed)
 }

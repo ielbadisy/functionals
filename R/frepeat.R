@@ -10,6 +10,12 @@
 #' @param simplify Logical. If `TRUE`, attempts to simplify the result using `simplify2array()`. Default is `FALSE`.
 #' @param ncores Integer. Number of cores to use for parallel execution. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
+#' @param .seed Optional single number. Gives each replicate its own
+#'   L'Ecuyer-CMRG RNG stream, so a Monte Carlo run is reproducible and
+#'   independent of `ncores`. The caller's global RNG state is restored on exit.
+#' @param .on_error How errors in `expr` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Replacement for failed replicates when `.on_error = "fill"`.
 #' @param ... Additional arguments passed to the function `expr` if it is callable.
 #'
 #' @return A list of outputs (or a simplified array if `simplify = TRUE`) from evaluating `expr` multiple times.
@@ -43,18 +49,24 @@
 #'
 #' @export
 
-frepeat <- function(.x = NULL, times, expr, simplify = FALSE, ncores = NULL, pb = FALSE, ...) {
+frepeat <- function(.x = NULL, times, expr, simplify = FALSE, ncores = NULL, pb = FALSE,
+                    .seed = NULL, .on_error = c("stop", "pass", "fill"), .fill = NULL, ...) {
+  .on_error <- match.arg(.on_error)
   out <- if (is.function(expr)) {
     fapply(
       seq_len(times),
       function(i) {
         if (is.null(.x)) expr(...) else expr(.x, ...)
       },
-      ncores = ncores,
-      pb = pb
+      ncores = ncores, pb = pb,
+      .seed = .seed, .on_error = .on_error, .fill = .fill
     )
   } else {
-    fapply(seq_len(times), function(i) eval(expr), ncores = ncores, pb = pb)
+    fapply(
+      seq_len(times), function(i) eval(expr),
+      ncores = ncores, pb = pb,
+      .seed = .seed, .on_error = .on_error, .fill = .fill
+    )
   }
   if (simplify) simplify2array(out) else out
 }

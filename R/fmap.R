@@ -10,6 +10,11 @@
 #' @param ncores Integer. Number of CPU cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to show a progress bar. Default is `FALSE`. In parallel
 #' mode, progress updates as each completed task returns.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"` (keep going, store a `"functionals_error"` object), or `"fill"`
+#'   (replace with `.fill`). See [fapply()].
+#' @param .fill Replacement for failed elements when `.on_error = "fill"`.
+#' @param .seed Optional single number for reproducible per-task RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results, one for each element of `.x`.
@@ -32,7 +37,9 @@
 #' }
 #'
 #' @export
-fmap <- function(.x, .f, ncores = NULL, pb = FALSE, ...) {
+fmap <- function(.x, .f, ncores = NULL, pb = FALSE,
+                 .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
-  fapply(.x, .f, ncores = ncores %||% 1, pb = pb, ...)
+  fapply(.x, .f, ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed, ...)
 }

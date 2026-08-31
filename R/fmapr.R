@@ -7,6 +7,10 @@
 #' @param .f A function applied to each row, which receives a named list.
 #' @param ncores Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Replacement for failed rows when `.on_error = "fill"`.
+#' @param .seed Optional single number for reproducible per-row RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results returned by applying `.f` to each row as a list.
@@ -30,8 +34,10 @@
 #'
 #' @export
 
-fmapr <- function(.df, .f, ncores = NULL, pb = FALSE, ...) {
+fmapr <- function(.df, .f, ncores = NULL, pb = FALSE,
+                  .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
   rows <- split(.df, seq_len(nrow(.df)))
-  fapply(rows, function(row) .f(as.list(row), ...), ncores = ncores, pb = pb)
+  fapply(rows, function(row) .f(as.list(row), ...), ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed)
 }

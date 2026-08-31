@@ -4,7 +4,17 @@
 \alias{fmapg}
 \title{Apply a function to groups of a data frame in parallel}
 \usage{
-fmapg(.df, .f, by, ncores = NULL, pb = FALSE, ...)
+fmapg(
+  .df,
+  .f,
+  by,
+  ncores = NULL,
+  pb = FALSE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.df}{A data frame to group and apply the function over.}
@@ -16,6 +26,13 @@ fmapg(.df, .f, by, ncores = NULL, pb = FALSE, ...)
 \item{ncores}{Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).}
 
 \item{pb}{Logical. Whether to show a progress bar. Default is `FALSE`.}
+
+\item{.on_error}{How errors thrown by `.f` are handled: `"stop"` (default),
+`"pass"`, or `"fill"`. See [fapply()].}
+
+\item{.fill}{Replacement for failed groups when `.on_error = "fill"`.}
+
+\item{.seed}{Optional single number for reproducible per-group RNG streams.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }

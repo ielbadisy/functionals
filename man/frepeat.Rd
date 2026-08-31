@@ -11,6 +11,9 @@ frepeat(
   simplify = FALSE,
   ncores = NULL,
   pb = FALSE,
+  .seed = NULL,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
   ...
 )
 }
@@ -26,6 +29,15 @@ frepeat(
 \item{ncores}{Integer. Number of cores to use for parallel execution. Default is `NULL` (sequential).}
 
 \item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
+
+\item{.seed}{Optional single number. Gives each replicate its own
+L'Ecuyer-CMRG RNG stream, so a Monte Carlo run is reproducible and
+independent of `ncores`. The caller's global RNG state is restored on exit.}
+
+\item{.on_error}{How errors in `expr` are handled: `"stop"` (default),
+`"pass"`, or `"fill"`. See [fapply()].}
+
+\item{.fill}{Replacement for failed replicates when `.on_error = "fill"`.}
 
 \item{...}{Additional arguments passed to the function `expr` if it is callable.}
 }

@@ -7,6 +7,10 @@
 #' @param .f A function that takes two arguments: the column vector and its name.
 #' @param ncores Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).
 #' @param pb Logical. Whether to display a progress bar. Default is `FALSE`.
+#' @param .on_error How errors thrown by `.f` are handled: `"stop"` (default),
+#'   `"pass"`, or `"fill"`. See [fapply()].
+#' @param .fill Replacement for failed columns when `.on_error = "fill"`.
+#' @param .seed Optional single number for reproducible per-column RNG streams.
 #' @param ... Additional arguments passed to `.f`.
 #'
 #' @return A list of results obtained by applying `.f` to each column of `.df`.
@@ -26,10 +30,12 @@
 #'
 #' @export
 
-fmapc <- function(.df, .f, ncores = NULL, pb = FALSE, ...) {
+fmapc <- function(.df, .f, ncores = NULL, pb = FALSE,
+                  .on_error = c("stop", "pass", "fill"), .fill = NULL, .seed = NULL, ...) {
   .f <- match.fun(.f)
   cols <- as.list(.df)
   names(cols) <- names(.df)
   col_pairs <- mapply(function(x, n) list(x, n), cols, names(cols), SIMPLIFY = FALSE)
-  fapply(col_pairs, function(pair) .f(pair[[1]], pair[[2]], ...), ncores = ncores, pb = pb)
+  fapply(col_pairs, function(pair) .f(pair[[1]], pair[[2]], ...), ncores = ncores, pb = pb,
+         .on_error = .on_error, .fill = .fill, .seed = .seed)
 }

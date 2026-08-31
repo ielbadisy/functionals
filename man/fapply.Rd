@@ -4,7 +4,18 @@
 \alias{fapply}
 \title{Apply a function over a list or vector with optional parallelism and progress}
 \usage{
-fapply(.x, .f, ncores = 1, pb = FALSE, cl = NULL, load_balancing = TRUE, ...)
+fapply(
+  .x,
+  .f,
+  ncores = 1,
+  pb = FALSE,
+  cl = NULL,
+  load_balancing = TRUE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.x}{A list or atomic vector.}
@@ -19,6 +30,21 @@ completed tasks. In parallel mode, updates occur as workers return results.}
 \item{cl}{A cluster object (from parallel::makeCluster), or integer for core count.}
 
 \item{load_balancing}{Logical. Use `parLapplyLB` if `TRUE` (default: `FALSE`).}
+
+\item{.on_error}{How to handle an error thrown by `.f`. `"stop"` (default)
+aborts the whole run, matching base `lapply()`. `"pass"` keeps going and
+stores an object of class `"functionals_error"` in the failed position
+(inspect with `conditionMessage()`), then emits a one-line summary
+warning. `"fill"` replaces each failed result with `.fill`. The behaviour
+is identical whether execution is sequential or parallel.}
+
+\item{.fill}{Replacement value used for failed elements when
+`.on_error = "fill"`. Default `NULL`.}
+
+\item{.seed}{Optional single number. When supplied, task `i` is run with its
+own L'Ecuyer-CMRG random-number stream, so results are reproducible and
+independent of `ncores` or task-completion order. The caller's global RNG
+state is restored on exit.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }

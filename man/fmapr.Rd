@@ -4,7 +4,16 @@
 \alias{fmapr}
 \title{Apply a function row-wise on a data frame with parallelism}
 \usage{
-fmapr(.df, .f, ncores = NULL, pb = FALSE, ...)
+fmapr(
+  .df,
+  .f,
+  ncores = NULL,
+  pb = FALSE,
+  .on_error = c("stop", "pass", "fill"),
+  .fill = NULL,
+  .seed = NULL,
+  ...
+)
 }
 \arguments{
 \item{.df}{A data frame whose rows will be iterated over.}
@@ -14,6 +23,13 @@ fmapr(.df, .f, ncores = NULL, pb = FALSE, ...)
 \item{ncores}{Integer. Number of cores to use for parallel processing. Default is `NULL` (sequential).}
 
 \item{pb}{Logical. Whether to display a progress bar. Default is `FALSE`.}
+
+\item{.on_error}{How errors thrown by `.f` are handled: `"stop"` (default),
+`"pass"`, or `"fill"`. See [fapply()].}
+
+\item{.fill}{Replacement for failed rows when `.on_error = "fill"`.}
+
+\item{.seed}{Optional single number for reproducible per-row RNG streams.}
 
 \item{...}{Additional arguments passed to `.f`.}
 }
