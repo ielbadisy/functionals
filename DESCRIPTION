@@ -1,24 +1,30 @@
 Package: functionals
 Type: Package
 Title: Functional Programming with Parallelism and Progress Tracking
-Version: 0.5.1
+Version: 0.6.0
 Authors@R: 
     person("Imad", "El Badisy", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
 Maintainer: Imad El Badisy <elbadisyimad@gmail.com>
-Description: Provides functional tools such as fmap(), fwalk(), and fapply() 
-    to iterate over vectors, data frames, or grouped data with optional parallelism 
-    and real-time progress tracking. Progress updates now reflect completed tasks
-    across sequential, multicore, and cluster-backed execution. Designed for
-    readable and reproducible workflows, including support for Monte Carlo
-    simulations and benchmarking.
+Description: Provides functional tools such as fmap(), fwalk(), and fapply()
+    to iterate over vectors, data frames, or grouped data with optional parallelism
+    and real-time progress tracking. Progress updates reflect completed tasks
+    across sequential, multicore, and cluster-backed execution. A uniform error
+    policy keeps a run going when individual tasks fail, and optional per-task
+    L'Ecuyer-CMRG random-number streams make parallel Monte Carlo work
+    reproducible regardless of the number of cores. Designed for readable and
+    reproducible workflows, including simulation and benchmarking.
 License: MIT + file LICENSE
 Encoding: UTF-8
 Imports:
     parallel
-Suggests: 
+Suggests:
     testthat (>= 3.0.0),
     bench,
+    knitr,
+    purrr,
+    rmarkdown,
     rsample
+VignetteBuilder: knitr
 Config/testthat/edition: 3
 RoxygenNote: 7.3.3
 URL: https://CRAN.R-project.org/package=functionals
