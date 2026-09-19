@@ -1,6 +1,8 @@
 
 # functionals: Functional mapping with parallelism and progress bars
 
+[![CRAN status](https://www.r-pkg.org/badges/version/functionals)](https://CRAN.R-project.org/package=functionals)
+
 ## Overview
 
 `functionals` is a lightweight toolkit for functional programming in R
