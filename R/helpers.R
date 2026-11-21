@@ -94,12 +94,12 @@ NULL
 #' @param .f The function to wrap.
 #' @param seed A single number, or `NULL` to leave `.x`/`.f` untouched.
 #'
-#' @return A list with elements `.x`, `.f`, and `nm` (original names, or `NULL`).
+#' @return A list with elements `.x`, `.f`, and `nm` (names of `.x`, restored on output).
 #'
 #' @keywords internal
 #' @noRd
 .seed_wrap <- function(.x, .f, seed) {
-  if (is.null(seed)) return(list(.x = .x, .f = .f, nm = NULL))
+  if (is.null(seed)) return(list(.x = .x, .f = .f, nm = names(.x)))
   streams <- .rng_streams(seed, length(.x))
   orig_x <- .x
   orig_f <- .f
@@ -392,51 +392,70 @@ splitpb <- function(nx, ncl, nout = 100) {
 }
 
 
-#' Execute tasks with mcparallel and exact completion-driven progress
+#' Execute tasks on a fixed pool of forks with completion-driven progress
+#'
+#' One fork per core (not per task): worker `w` runs tasks `w, w + ncores, ...`
+#' and appends one byte per finished task to its own progress file (flushed at
+#' most every 50 ms), so the parent can count completions without extra forks.
 #'
 #' @keywords internal
 #' @noRd
 .functionals_multicore_queue <- function(.x, task_fun, ncores, pb_bar = NULL) {
-  if (!length(.x)) return(list())
+  n <- length(.x)
+  if (!n) return(list())
 
-  parallel_ns <- asNamespace("parallel")
-  cleanup <- get("cleanup", envir = parallel_ns)
+  cleanup <- get("cleanup", envir = asNamespace("parallel"))
   on.exit(cleanup(kill = TRUE, detach = FALSE), add = TRUE)
 
-  out <- vector("list", length(.x))
-  jobs <- list()
-  next_idx <- 1L
-  max_jobs <- min(ncores, length(.x))
+  nw <- min(ncores, n)
+  idx <- lapply(seq_len(nw), function(w) seq.int(w, n, by = nw))
+  files <- vapply(seq_len(nw), function(w) tempfile("functionals-pb-"), character(1))
+  file.create(files)
+  on.exit(unlink(files), add = TRUE)
 
-  launch_job <- function(idx) {
-    parallel::mcparallel(task_fun(.x[[idx]]), name = as.character(idx), silent = TRUE)
-  }
-
-  while (length(jobs) < max_jobs && next_idx <= length(.x)) {
-    jobs[[as.character(next_idx)]] <- launch_job(next_idx)
-    next_idx <- next_idx + 1L
-  }
-
-  completed <- 0L
-  while (completed < length(.x)) {
-    res <- parallel::mccollect(jobs, wait = FALSE, timeout = 0.1)
-    if (is.null(res)) {
-      if (!is.null(pb_bar)) pb_bar$tick()
-      next
-    }
-
-    for (name in names(res)) {
-      out[[as.integer(name)]] <- .functionals_unwrap_task_result(res[[name]])
-      jobs[[name]] <- NULL
-      completed <- completed + 1L
-      if (!is.null(pb_bar)) pb_bar$up(completed)
-
-      if (next_idx <= length(.x)) {
-        jobs[[as.character(next_idx)]] <- launch_job(next_idx)
-        next_idx <- next_idx + 1L
+  worker <- function(ix, f) {
+    res <- vector("list", length(ix))
+    flushed <- 0L
+    last <- proc.time()[["elapsed"]]
+    for (k in seq_along(ix)) {
+      res[[k]] <- task_fun(.x[[ix[k]]])
+      if (!isTRUE(res[[k]]$ok)) break
+      now <- proc.time()[["elapsed"]]
+      if (now - last >= 0.05) {
+        cat(strrep(".", k - flushed), file = f, append = TRUE)
+        flushed <- k
+        last <- now
       }
     }
+    res
   }
 
+  jobs <- lapply(seq_len(nw), function(w) parallel::mcparallel(worker(idx[[w]], files[w]), silent = TRUE))
+  pids <- vapply(jobs, function(j) j$pid, integer(1))
+  done <- vector("list", nw)
+  finished <- logical(nw)
+
+  while (!all(finished)) {
+    res <- parallel::mccollect(jobs[!finished], wait = FALSE, timeout = 0.1)
+    for (pid in names(res)) {
+      w <- match(as.integer(pid), pids)
+      done[[w]] <- res[[pid]]
+      finished[w] <- TRUE
+    }
+    if (!is.null(pb_bar)) {
+      running <- sum(file.size(files[!finished]), na.rm = TRUE)
+      pb_bar$up(min(n, running + sum(lengths(idx[finished]))))
+      pb_bar$tick()
+    }
+  }
+
+  out <- vector("list", n)
+  for (w in seq_len(nw)) {
+    r <- done[[w]]
+    if (is.null(r)) stop("a worker process exited unexpectedly", call. = FALSE)
+    if (inherits(r, "try-error")) stop(as.character(r), call. = FALSE)
+    out[idx[[w]]] <- r
+  }
+  for (i in seq_len(n)) out[i] <- list(.functionals_unwrap_task_result(out[[i]]))
   out
 }
