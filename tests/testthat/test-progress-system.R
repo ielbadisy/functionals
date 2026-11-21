@@ -157,3 +157,28 @@ test_that("multicore progress refreshes elapsed time while waiting", {
   expect_true(any(grepl("0/2 elapsed 00:01", lines, fixed = TRUE)))
   expect_equal(unname(out), as.list(1:2))
 })
+
+test_that("multicore progress uses one fork per core and keeps order, names and seeds", {
+  skip_on_cran()
+  skip_on_os("windows")
+  x <- setNames(as.list(1:200), paste0("k", 1:200))
+  out <- suppressMessages(capture.output(r <- fmap(x, function(v) v^2, ncores = 3, pb = TRUE)))
+  expect_identical(r, lapply(x, function(v) v^2))
+  s1 <- fmap(1:40, function(i) rnorm(1), .seed = 3)
+  capture.output(s3 <- fmap(1:40, function(i) rnorm(1), ncores = 3, pb = TRUE, .seed = 3))
+  expect_identical(s1, s3)
+  capture.output(expect_error(
+    fmap(1:30, function(i) if (i == 11) stop("boom11") else i, ncores = 3, pb = TRUE), "boom11"))
+  capture.output(t <- system.time(fmap(1:600, sqrt, ncores = 2, pb = TRUE))[["elapsed"]])
+  expect_lt(t, 3)
+})
+
+test_that("names survive the progress-bar back ends", {
+  skip_on_cran()
+  x <- c(a = 1, b = 4)
+  capture.output(r1 <- fmap(x, sqrt, pb = TRUE))
+  expect_named(r1, c("a", "b"))
+  skip_on_os("windows")
+  capture.output(r2 <- fmap(x, sqrt, ncores = 2, pb = TRUE))
+  expect_named(r2, c("a", "b"))
+})
