@@ -1,3 +1,12 @@
+# functionals (development version)
+
+- Multicore execution with `pb = TRUE` now runs one fork per core instead of
+  one fork per task. On 2,000 small tasks with 4 cores it drops from about
+  24 s to 0.4 s, matching `parallel::mclapply()`, while the progress bar
+  still advances on completed tasks.
+- Names of `.x` are now kept when `pb = TRUE` (they were dropped by the
+  progress-bar back ends).
+
 # functionals 0.6.0
 
 ## New features
