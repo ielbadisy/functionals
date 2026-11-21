@@ -1,7 +1,7 @@
 Package: functionals
 Type: Package
 Title: Functional Programming with Parallelism and Progress Tracking
-Version: 0.6.0
+Version: 0.6.0.9000
 Authors@R: 
     person("Imad", "El Badisy", email = "elbadisyimad@gmail.com", role = c("aut", "cre"))
 Maintainer: Imad El Badisy <elbadisyimad@gmail.com>
