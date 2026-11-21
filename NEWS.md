@@ -4,6 +4,9 @@
   one fork per task. On 2,000 small tasks with 4 cores it drops from about
   24 s to 0.4 s, matching `parallel::mclapply()`, while the progress bar
   still advances on completed tasks.
+- Socket clusters with `pb = TRUE` no longer re-send the whole input with every
+  task; the task function is installed once per worker (about 53x lower
+  progress overhead on 2,000 small tasks).
 - Names of `.x` are now kept when `pb = TRUE` (they were dropped by the
   progress-bar back ends).
 
