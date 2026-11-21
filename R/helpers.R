@@ -358,8 +358,20 @@ splitpb <- function(nx, ncl, nout = 100) {
   n_workers <- min(length(cl), length(.x))
   socklist <- if (is_sock_cluster) lapply(cl, function(x) x$con) else NULL
 
+  # ship task_fun (and the data its closure holds) once per worker, then send items only
+  parallel::clusterCall(cl, function(f) {
+    assign(".functionals_task", f, envir = globalenv())
+    NULL
+  }, task_fun)
+  on.exit(try(parallel::clusterCall(cl, function() {
+    rm(list = ".functionals_task", envir = globalenv())
+    NULL
+  }), silent = TRUE), add = TRUE)
+  runner <- function(item) get(".functionals_task", envir = globalenv())(item)
+  environment(runner) <- globalenv()
+
   for (worker_idx in seq_len(n_workers)) {
-    send_call(cl[[worker_idx]], task_fun, list(.x[[next_idx]]), tag = next_idx)
+    send_call(cl[[worker_idx]], runner, list(.x[[next_idx]]), tag = next_idx)
     next_idx <- next_idx + 1L
   }
 
@@ -383,7 +395,7 @@ splitpb <- function(nx, ncl, nout = 100) {
     if (!is.null(pb_bar)) pb_bar$up(completed)
 
     if (next_idx <= length(.x)) {
-      send_call(cl[[res$node]], task_fun, list(.x[[next_idx]]), tag = next_idx)
+      send_call(cl[[res$node]], runner, list(.x[[next_idx]]), tag = next_idx)
       next_idx <- next_idx + 1L
     }
   }
